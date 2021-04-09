@@ -26,8 +26,8 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown():
         try:
-            trans_wrist_left = tfBuffer.lookup_transform('chest', 'wrist_left', rospy.Time())
-            trans_wrist_right = tfBuffer.lookup_transform('chest', 'wrist_right', rospy.Time())
+            trans_wrist_left = tfBuffer.lookup_transform('human/shoulder_center', 'human/left_wrist', rospy.Time())
+            trans_wrist_right = tfBuffer.lookup_transform('human/shoulder_center', 'human/right_wrist', rospy.Time())
         except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
             rate.sleep()
             continue
