@@ -64,61 +64,202 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        human_finger1_link:
+        base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        human_finger2_link:
+        human/base:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        human_forearm_link:
+        human/head:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        human_hand_link:
+        human/left_ankle:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        human_shoulder_joint_virt_link_x:
+        human/left_ankle_0:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        human_shoulder_joint_virt_link_y:
+        human/left_arm_mount:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        human_shoulder_joint_virt_link_z:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        human_torso:
+        human/left_elbow:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        human_upperarm_link:
+        human/left_foot:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/left_hand:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/left_hip:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        human_wrist_joint_virt_link_x:
+        human/left_hip_0:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        human_wrist_joint_virt_link_y:
+        human/left_hip_1:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        human_wrist_joint_virt_link_z:
+        human/left_knee:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        world:
+          Value: true
+        human/left_leg_mount:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/left_shoulder:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/left_shoulder_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/left_shoulder_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/left_wrist:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/left_wrist_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/left_wrist_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/neck:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/neck_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/neck_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_ankle:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/right_ankle_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_arm_mount:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_elbow:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/right_foot:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_hand:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_hip:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/right_hip_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_hip_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_knee:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/right_leg_mount:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_shoulder:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/right_shoulder_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_shoulder_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_wrist:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/right_wrist_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/right_wrist_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/shoulder_center:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/spine:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/spine_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        human/spine_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        human/spine_2:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -139,7 +280,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: world
+    Fixed Frame: human/base
     Frame Rate: 30
   Name: root
   Tools:
@@ -163,7 +304,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.6521589756011963
+      Distance: 3.1222097873687744
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
