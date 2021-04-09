@@ -197,21 +197,21 @@
     <child link="human/right_elbow"/>
     <limit effort="1" lower="0.0" upper="3.14159265359" velocity="1"/>
   </joint>
-  <joint name="right_wrist_0" type="revolute">
+  <joint name="right_wrist_0" type="fixed">
     <origin rpy="0 0 0" xyz="0.274149473988 0 0"/>
     <axis xyz="0 1 0"/>
     <parent link="human/right_elbow"/>
     <child link="human/right_wrist_0"/>
     <limit effort="1" lower="-0.78539816339" upper="0.78539816339" velocity="1"/>
   </joint>
-  <joint name="right_wrist_1" type="revolute">
+  <joint name="right_wrist_1" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="0 0 1"/>
     <parent link="human/right_wrist_0"/>
     <child link="human/right_wrist_1"/>
     <limit effort="1" lower="-1.57079632679" upper="1.57079632679" velocity="1"/>
   </joint>
-  <joint name="right_wrist_2" type="revolute">
+  <joint name="right_wrist_2" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="1 0 0"/>
     <parent link="human/right_wrist_1"/>
@@ -289,21 +289,21 @@
     <child link="human/left_elbow"/>
     <limit effort="1" lower="-3.14159265359" upper="0.0" velocity="1"/>
   </joint>
-  <joint name="left_wrist_0" type="revolute">
+  <joint name="left_wrist_0" type="fixed">
     <origin rpy="0 0 0" xyz="0.274149473988 0 0"/>
     <axis xyz="0 -1 0"/>
     <parent link="human/left_elbow"/>
     <child link="human/left_wrist_0"/>
     <limit effort="1" lower="-0.78539816339" upper="0.78539816339" velocity="1"/>
   </joint>
-  <joint name="left_wrist_1" type="revolute">
+  <joint name="left_wrist_1" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="0 0 1"/>
     <parent link="human/left_wrist_0"/>
     <child link="human/left_wrist_1"/>
     <limit effort="1" lower="-1.57079632679" upper="1.57079632679" velocity="1"/>
   </joint>
-  <joint name="left_wrist_2" type="revolute">
+  <joint name="left_wrist_2" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
     <axis xyz="1 0 0"/>
     <parent link="human/left_wrist_1"/>
