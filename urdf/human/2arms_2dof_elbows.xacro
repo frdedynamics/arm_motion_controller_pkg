@@ -171,21 +171,21 @@
   <!-- SHOULDER : spherical -->
   <joint name="right_shoulder_0" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <axis xyz="0 -1 0"/>
+    <axis xyz="1 0 0"/>
     <parent link="human/right_arm_mount"/>
     <child link="human/right_shoulder_0"/>
     <limit effort="1" lower="-1.57079632679" upper="1.57079632679" velocity="1"/>
   </joint>
   <joint name="right_shoulder_1" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <axis xyz="0 0 1"/>
+    <axis xyz="0 1 0"/>
     <parent link="human/right_shoulder_0"/>
     <child link="human/right_shoulder_1"/>
     <limit effort="1" lower="-1.57079632679" upper="2.35619449019" velocity="1"/>
   </joint>
   <joint name="right_shoulder_2" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="0 0 1"/>
     <parent link="human/right_shoulder_1"/>
     <child link="human/right_shoulder"/>
     <limit effort="1" lower="-1.57079632679" upper="1.57079632679" velocity="1"/>
@@ -193,14 +193,14 @@
   <!-- END SHOULDER -->
   <joint name="right_elbow_0" type="revolute">
     <origin rpy="0 0 0" xyz="0.294151609476 0 0"/>
-    <axis xyz="0 0 1"/>
+    <axis xyz="1 0 0"/>
     <parent link="human/right_shoulder"/>
     <child link="human/right_elbow_0"/>
-    <limit effort="1" lower="0.0" upper="3.14159265359" velocity="1"/>
+    <limit effort="1" lower="-3.14159265359" upper="3.14159265359" velocity="1"/>
   </joint>
-    <joint name="right_elbow_1" type="revolute">
+    <joint name="right_elbow_2" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="0 0 1"/>
     <parent link="human/right_elbow_0"/>
     <child link="human/right_elbow"/>
     <limit effort="1" lower="0.0" upper="3.14159265359" velocity="1"/>
