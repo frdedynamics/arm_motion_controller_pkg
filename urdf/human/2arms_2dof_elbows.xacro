@@ -242,6 +242,7 @@
       </geometry>
     </visual>
   </link>
+  <link name="human/left_elbow_0"/>
   <link name="human/left_elbow">
     <visual>
       <origin rpy="0 1.57079632679 0" xyz="0.137074736994 0 0"/>
@@ -267,24 +268,26 @@
     <parent link="human/shoulder_center"/>
     <child link="human/left_arm_mount"/>
   </joint>
+
+
   <!-- SHOULDER : spherical -->
-  <joint name="left_shoulder_0" type="revolute">
+    <joint name="left_shoulder_0" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <axis xyz="0 1 0"/>
+    <axis xyz="-1 0 0"/>
     <parent link="human/left_arm_mount"/>
     <child link="human/left_shoulder_0"/>
     <limit effort="1" lower="-1.57079632679" upper="1.57079632679" velocity="1"/>
   </joint>
   <joint name="left_shoulder_1" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <axis xyz="0 0 1"/>
+    <axis xyz="0 1 0"/>
     <parent link="human/left_shoulder_0"/>
     <child link="human/left_shoulder_1"/>
-    <limit effort="1" lower="-2.35619449019" upper="1.57079632679" velocity="1"/>
+    <limit effort="1" lower="-1.57079632679" upper="2.35619449019" velocity="1"/>
   </joint>
   <joint name="left_shoulder_2" type="revolute">
     <origin rpy="0 0 0" xyz="0 0 0"/>
-    <axis xyz="1 0 0"/>
+    <axis xyz="0 0 -1"/>
     <parent link="human/left_shoulder_1"/>
     <child link="human/left_shoulder"/>
     <limit effort="1" lower="-1.57079632679" upper="1.57079632679" velocity="1"/>
@@ -292,11 +295,22 @@
   <!-- END SHOULDER -->
   <joint name="left_elbow_0" type="revolute">
     <origin rpy="0 0 0" xyz="0.294151609476 0 0"/>
-    <axis xyz="0 0 1"/>
+    <axis xyz="-1 0 0"/>
     <parent link="human/left_shoulder"/>
-    <child link="human/left_elbow"/>
-    <limit effort="1" lower="-3.14159265359" upper="0.0" velocity="1"/>
+    <child link="human/left_elbow_0"/>
+    <limit effort="1" lower="-3.14159265359" upper="3.14159265359" velocity="1"/>
   </joint>
+    <joint name="left_elbow_2" type="revolute">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 -1"/>
+    <parent link="human/left_elbow_0"/>
+    <child link="human/left_elbow"/>
+    <limit effort="1" lower="0.0" upper="3.14159265359" velocity="1"/>
+  </joint>
+
+
+
+
   <joint name="left_wrist_0" type="fixed">
     <origin rpy="0 0 0" xyz="0.274149473988 0 0"/>
     <axis xyz="0 -1 0"/>
