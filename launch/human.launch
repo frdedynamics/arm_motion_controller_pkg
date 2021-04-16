@@ -2,7 +2,7 @@
 
 <launch>
 
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find arm_motion_controller_pkg)/urdf/human/2arms.xacro'"/>
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find arm_motion_controller_pkg)/urdf/human/2arms_2dof_elbows.xacro'"/>
 
   <!-- Combine joint values -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
@@ -10,9 +10,9 @@
   <!-- Show in Rviz   -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find arm_motion_controller_pkg)/launch/config/config.rviz"/> 
 
-  <!-- publish joint state
+  <!-- publish joint state-->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="use_gui" value="True"/>
-  </node>-->
+  </node>
 
 </launch>
