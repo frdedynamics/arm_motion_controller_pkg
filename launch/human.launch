@@ -2,10 +2,11 @@
 
 <launch>
 
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find arm_motion_controller_pkg)/urdf/human/2arms_2dof_elbows.xacro'"/>
+  <param name="human_description" command="$(find xacro)/xacro --inorder '$(find arm_motion_controller_pkg)/urdf/human/2arms_2dof_elbows.xacro'"/>
 
   <!-- Combine joint values -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
+    <remap from="robot_description" to="human_description" />
     <remap from="joint_states" to="/joint_states_human" />
   </node>
 
