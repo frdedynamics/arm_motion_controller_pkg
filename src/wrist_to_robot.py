@@ -37,23 +37,27 @@ def cb_r_wrist(msg):
     global wrist_right_pose
     wrist_right_pose = msg
 
+
 if __name__ == '__main__':
     pub_tee_goal = rospy.Publisher('/tee_goal', Pose, queue_size=10)
     sub_l_wrist = rospy.Subscriber('/wrist_left', Pose, cb_l_wrist)
-    sub_l_wrist = rospy.Subscriber('/wrist_right', Pose, cb_r_wrist)
+    sub_r_wrist = rospy.Subscriber('/wrist_right', Pose, cb_r_wrist)
     rospy.init_node('wrist_to_robot')
     rate = rospy.Rate(10.0)
     print "wrist_to_robot node started"
 
     mirror_state = None
     motion_state = None
+    init_flag = False
     while not rospy.is_shutdown():
         if not mirror_state == 'y':
             print "Move to mirror pose (touch to robot tool). Ready: y"
             mirror_state = raw_input()
         else:
-            left_htm_init = DHmatrices.pose_to_htm(wrist_left_pose)
-            right_htm_init = DHmatrices.pose_to_htm(wrist_right_pose)
+            if not init_flag:
+                left_htm_init = DHmatrices.pose_to_htm(wrist_left_pose)
+                right_htm_init = DHmatrices.pose_to_htm(wrist_right_pose)
+                init_flag = True
             if not motion_state == 'y':
                 print "Start motion? Start: y"
                 motion_state = raw_input()
@@ -61,7 +65,8 @@ if __name__ == '__main__':
                 tf_left = np.matmul(np.linalg.inv(left_htm_init), DHmatrices.pose_to_htm(wrist_left_pose))
                 tee_goal = DHmatrices.htm_to_pose(np.matmul(ur5e_init_htm, tf_left))
                 pub_tee_goal.publish(tee_goal)
-                print "publishing tee_goal"
+                print "tee_goal:", tee_goal
+                # print "publishing tee_goal"
             
         rate.sleep()
 
