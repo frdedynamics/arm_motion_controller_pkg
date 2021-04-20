@@ -66,7 +66,7 @@ class IMUsubscriber:
 
 
     def init_subscribers_and_publishers(self):
-        self.pub = rospy.Publisher('/joint_states', JointState, queue_size=1)
+        self.pub = rospy.Publisher('/joint_states_human', JointState, queue_size=1)
         self.sub_imu_c = rospy.Subscriber('/sensor_r_wrist', Imu, self.cb_imu_chest)
         self.sub_imu_ls = rospy.Subscriber('/sensor_l_shoulder', Imu, self.cb_imu_ls)
         self.sub_imu_le = rospy.Subscriber('/sensor_l_elbow', Imu, self.cb_imu_le)
