@@ -21,7 +21,7 @@ if __name__ == '__main__':
     tfBuffer = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(tfBuffer)
     rate = rospy.Rate(10.0)
-    print "Publishing"
+    print "Publishing wrist poses"
 
 
     while not rospy.is_shutdown():

@@ -73,7 +73,12 @@ if __name__ == '__main__':
 	dummy_input = raw_input()
 	rate = rospy.Rate(10.0)
 	while not rospy.is_shutdown():
-		tee_goal = plan_task_space_control(arm_group, robot_init, tee_goal)
+		# tee_goal = plan_task_space_control(arm_group, robot_init, tee_goal)
+		arm_group.set_pose_target(tee_goal)
+		plan = arm_group.go(wait=True)
+		arm_group.stop()
+		arm_group.clear_pose_targets()
+
 		print "tee_goal:", tee_goal
 		rate.sleep()
 
