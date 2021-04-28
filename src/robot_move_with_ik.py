@@ -13,7 +13,8 @@ import sys
 import rospy
 import copy
 
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, Point, Quaternion
+from sensor_msgs.msg import JointState
 
 hand_pose = Pose()
 
@@ -23,61 +24,32 @@ def cb_hand_pose(msg):
     hand_pose = msg
 
 
-def movegroup_init():
-	"""
-	Initializes the manipulator and end-effector groups
-	@returns Initialized groups
-	"""
-	moveit_commander.roscpp_initialize(sys.argv)
-	robot = moveit_commander.RobotCommander()
-
-	arm_group = moveit_commander.MoveGroupCommander("arm")
-	arm_group.set_named_target("home2")
-	plan_arm = arm_group.go()  
-	return arm_group
-
-def cartesian_control_with_IMU(arm_group, robot_init, hand_pose_target, *argv):
-	waypoints = []
+def cartesian_control_with_IMU(robot_init, hand_pose_target, *argv):
 	scale = 3.0
 	
-	wpose = Pose()
-	wpose.position.x = robot_init.position.x + scale * hand_pose_target.position.y
-	wpose.position.y = robot_init.position.y + scale * hand_pose_target.position.x
-	wpose.position.z = robot_init.position.z + scale * hand_pose_target.position.z
-	wpose.orientation = robot_init.orientation
-	# wpose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
-	
-	waypoints.append(copy.deepcopy(wpose))
-	
-	(plan, fraction) = arm_group.compute_cartesian_path(
-                                   waypoints,   # waypoints to follow
-                                   0.1,        # eef_step
-                                   0.0)         # jump_threshold
-
-	arm_group.execute(plan, wait=False)
-	arm_group.stop()
-	arm_group.clear_pose_targets()
-
+	robot_pose = Pose()
+	robot_pose.position.x = robot_init.position.x + scale * hand_pose_target.position.y
+	robot_pose.position.y = robot_init.position.y + scale * hand_pose_target.position.x
+	robot_pose.position.z = robot_init.position.z + scale * hand_pose_target.position.z
+	robot_pose.orientation = robot_init.orientation
+	# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
+	pub_tee_goal.publish(robot_pose)
 
 
 def main():
 	try:
 		global hand_pose
 		sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, cb_hand_pose)
-		arm_group = movegroup_init()
-		rospy.init_node('robot_move')
-		robot_init = arm_group.get_current_pose().pose
+		sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, queue_size=1)
+		pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
+		rospy.init_node('robot_move_with_ik')
+		robot_init = Pose(Point(-0.136, 0.490, 0.687), Quaternion(-0.697, 0.005, 0.012, 0.717))
 		print "============ Arm current pose: ", robot_init
 		print "click Enter to continue"
 		dummy_input = raw_input()
 		rate = rospy.Rate(10.0)
 		while not rospy.is_shutdown():
-			cartesian_control_with_IMU(arm_group, robot_init, hand_pose)
-			# arm_group.set_pose_target(hand_pose)
-			# plan = arm_group.go(wait=True)
-			# arm_group.stop()
-			# arm_group.clear_pose_targets()
-
+			cartesian_control_with_IMU(robot_init, hand_pose)
 			print "hand_pose:", hand_pose
 			rate.sleep()
 	except KeyboardInterrupt:
