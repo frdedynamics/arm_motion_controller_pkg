@@ -39,7 +39,7 @@ def cb_r_wrist(msg):
 
 
 if __name__ == '__main__':
-    pub_tee_goal = rospy.Publisher('/tee_goal', Pose, queue_size=10)
+    pub_hand_pose = rospy.Publisher('/hand_pose', Pose, queue_size=10)
     sub_l_wrist = rospy.Subscriber('/wrist_left', Pose, cb_l_wrist)
     sub_r_wrist = rospy.Subscriber('/wrist_right', Pose, cb_r_wrist)
     rospy.init_node('wrist_to_robot')
@@ -63,10 +63,10 @@ if __name__ == '__main__':
                 motion_state = raw_input()
             else:
                 tf_left = np.matmul(np.linalg.inv(left_htm_init), DHmatrices.pose_to_htm(wrist_left_pose))
-                tee_goal = DHmatrices.htm_to_pose(np.matmul(ur5e_init_htm, tf_left))
-                pub_tee_goal.publish(tee_goal)
-                print "tee_goal:", tee_goal
-                # print "publishing tee_goal"
+                tf_left_pose = DHmatrices.htm_to_pose(tf_left)
+                # hand_pose = DHmatrices.htm_to_pose(np.matmul(ur5e_init_htm, tf_left))
+                pub_hand_pose.publish(tf_left_pose)
+                print "tf_left:", tf_left_pose
             
         rate.sleep()
 
