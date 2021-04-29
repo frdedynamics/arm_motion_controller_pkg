@@ -13,10 +13,8 @@ def main():
 	Robot = RobotCommander(rate=100, start_node=True)
 	Robot.init_subscribers_and_publishers()
 	Robot.start_server()
-	test = [pi/2, -pi/2, 0.0, pi, -pi/2, 0.0]
 	try:
 		while not rospy.is_shutdown():
-			Robot.send_joint_commands(test)
 			Robot.update()
 			Robot.r.sleep()
 	except KeyboardInterrupt:

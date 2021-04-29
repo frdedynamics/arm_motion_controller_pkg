@@ -38,6 +38,7 @@ class RobotCommander:
 		self.home = [pi/2, -pi/2, 0.0, pi, -pi/2, 0.0]
 		self.target_pose = Pose()
 		self.joint_angles = JointState()
+		self.joint_angles.position = self.home
 		self.robot_pose = Pose()
 		self.scale = scale
 		self.move_safe_flag = False
@@ -50,18 +51,21 @@ class RobotCommander:
 
 	def init_subscribers_and_publishers(self):
 		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.cb_target_pose)
-		self.sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, queue_size=1)
-		self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
+		self.sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, self.cb_openrave_joints)
+		# self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
 
 
 	def cb_target_pose(self, msg):
 		""" Subscribes hand pose """
+		print "cb_target_pose"
 		self.target_pose = msg
+		print "target pose:", self.target_pose
 
 	
 	def cb_openrave_joints(self, msg):
 		""" Subscribes calculated joint angles from IKsolver """
 		self.joint_angles = msg
+		print "openrave joint angles:", self.joint_angles
 
 
 	def cartesian_control_with_IMU(self):	
@@ -71,10 +75,14 @@ class RobotCommander:
 		self.robot_pose.orientation = self.robot_init.orientation
 		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
 	
-	
+
 	def update(self):
+		# print "here"
+		# test = [pi/2, -pi/2, 0.0, pi, pi/2, 0.0]
+		# self.send_joint_commands(test)
 		self.cartesian_control_with_IMU()
-		self.pub_tee_goal.publish(self.robot_pose)
+		self.send_joint_commands(self.joint_angles.position)
+		# self.pub_tee_goal.publish(self.robot_pose)
 
 
 	def start_server(self):
