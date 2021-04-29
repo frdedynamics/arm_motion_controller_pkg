@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 tf_left_pose = DHmatrices.htm_to_pose(tf_left)
                 # hand_pose = DHmatrices.htm_to_pose(np.matmul(ur5e_init_htm, tf_left))
                 pub_hand_pose.publish(tf_left_pose)
-                print "tf_left:", tf_left_pose
+                # print "tf_left:", tf_left_pose
             
         rate.sleep()
 

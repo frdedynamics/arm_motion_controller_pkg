@@ -22,7 +22,7 @@ import control_msgs.msg as cm
 import trajectory_msgs.msg as tm
 
 class RobotCommander:
-	def __init__(self, rate=100, start_node=False, scale=3.0):
+	def __init__(self, rate=100, start_node=False, scale=1.0):
 		"""Initializes the robot commander"""
 
 		if start_node == True:
@@ -69,6 +69,7 @@ class RobotCommander:
 
 
 	def cartesian_control_with_IMU(self):	
+		print "robot_pose:", self.robot_pose.position
 		self.robot_pose.position.x = self.robot_init.position.x + self.scale * self.target_pose.position.y
 		self.robot_pose.position.y = self.robot_init.position.y + self.scale * self.target_pose.position.x
 		self.robot_pose.position.z = self.robot_init.position.z + self.scale * self.target_pose.position.z
@@ -81,7 +82,7 @@ class RobotCommander:
 		# test = [pi/2, -pi/2, 0.0, pi, pi/2, 0.0]
 		# self.send_joint_commands(test)
 		self.cartesian_control_with_IMU()
-		self.send_joint_commands(self.joint_angles.position)
+		# self.send_joint_commands(self.joint_angles.position)
 		self.pub_tee_goal.publish(self.robot_pose)
 
 
