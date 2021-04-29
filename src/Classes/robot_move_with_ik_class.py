@@ -82,7 +82,7 @@ class RobotCommander:
 		# test = [pi/2, -pi/2, 0.0, pi, pi/2, 0.0]
 		# self.send_joint_commands(test)
 		self.cartesian_control_with_IMU()
-		# self.send_joint_commands(self.joint_angles.position)
+		self.send_joint_commands(self.joint_angles.position)
 		self.pub_tee_goal.publish(self.robot_pose)
 
 
