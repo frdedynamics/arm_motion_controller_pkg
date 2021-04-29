@@ -52,7 +52,7 @@ class RobotCommander:
 	def init_subscribers_and_publishers(self):
 		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.cb_target_pose)
 		self.sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, self.cb_openrave_joints)
-		# self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
+		self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
 
 
 	def cb_target_pose(self, msg):
@@ -82,7 +82,7 @@ class RobotCommander:
 		# self.send_joint_commands(test)
 		self.cartesian_control_with_IMU()
 		self.send_joint_commands(self.joint_angles.position)
-		# self.pub_tee_goal.publish(self.robot_pose)
+		self.pub_tee_goal.publish(self.robot_pose)
 
 
 	def start_server(self):
