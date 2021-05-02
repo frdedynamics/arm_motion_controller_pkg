@@ -82,30 +82,30 @@ class RobotCommander:
 		# test = [pi/2, -pi/2, 0.0, pi, pi/2, 0.0]
 		# self.send_joint_commands(test)
 		self.cartesian_control_with_IMU()
-		self.send_joint_commands(self.joint_angles.position)
+		# self.send_joint_commands(self.joint_angles.position)
 		self.pub_tee_goal.publish(self.robot_pose)
 
 
-	def start_server(self):
-		self.client = actionlib.SimpleActionClient('arm_controller/follow_joint_trajectory', cm.FollowJointTrajectoryAction)
-		print "Waiting for server..."
-		self.client.wait_for_server()
-		print "Connected to server"
-		print "Please make sure that your robot can move freely. Moving home."
-		print "Press Enter to proceed: (Type 'n' for not safe)"
-		dummy_input = raw_input()
-		if not dummy_input == 'n':
-			self.move_safe_flag = True
+	# def start_server(self):
+	# 	self.client = actionlib.SimpleActionClient('arm_controller/follow_joint_trajectory', cm.FollowJointTrajectoryAction)
+	# 	print "Waiting for server..."
+	# 	self.client.wait_for_server()
+	# 	print "Connected to server"
+	# 	print "Please make sure that your robot can move freely. Moving home."
+	# 	print "Press Enter to proceed: (Type 'n' for not safe)"
+	# 	dummy_input = raw_input()
+	# 	if not dummy_input == 'n':
+	# 		self.move_safe_flag = True
 
-		if self.move_safe_flag == True:
-			self.send_joint_commands(self.home)
+	# 	if self.move_safe_flag == True:
+	# 		self.send_joint_commands(self.home)
 
 
-	def send_joint_commands(self, current):
-		joint_states = rospy.wait_for_message("joint_states", JointState)
-		joints_pos = joint_states.position
-		self.g.trajectory.points = [
-			tm.JointTrajectoryPoint(positions=joints_pos, velocities=[0]*6, time_from_start=rospy.Duration(0.0)),
-			tm.JointTrajectoryPoint(positions=current, velocities=[0]*6, time_from_start=rospy.Duration(0.4))]
-		self.client.send_goal(self.g)
-		self.client.wait_for_result()
+	# def send_joint_commands(self, current):
+	# 	joint_states = rospy.wait_for_message("joint_states", JointState)
+	# 	joints_pos = joint_states.position
+	# 	self.g.trajectory.points = [
+	# 		tm.JointTrajectoryPoint(positions=joints_pos, velocities=[0]*6, time_from_start=rospy.Duration(0.0)),
+	# 		tm.JointTrajectoryPoint(positions=current, velocities=[0]*6, time_from_start=rospy.Duration(0.4))]
+	# 	self.client.send_goal(self.g)
+	# 	self.client.wait_for_result()

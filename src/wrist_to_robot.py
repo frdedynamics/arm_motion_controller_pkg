@@ -24,7 +24,8 @@ DHmatrices = DHmatrices()
 
 wrist_left_pose = Pose()
 wrist_right_pose = Pose()
-ur5e_init = Pose(Point(-0.136, 0.490, 0.687), Quaternion(-0.697, 0.005, 0.012, 0.717))
+# ur5e_init = Pose(Point(-0.136, 0.490, 0.687), Quaternion(-0.697, 0.005, 0.012, 0.717))
+ur5e_init = Pose(Point(-0.492, -0.133, 0.687), Quaternion(-0.500, -0.500, 0.500, 0.500))
 ur5e_init_htm = DHmatrices.pose_to_htm(ur5e_init)
 
 

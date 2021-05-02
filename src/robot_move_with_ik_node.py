@@ -12,7 +12,7 @@ from math import pi
 def main(): 
 	Robot = RobotCommander(rate=100, start_node=True)
 	Robot.init_subscribers_and_publishers()
-	Robot.start_server()
+	# Robot.start_server()
 	try:
 		while not rospy.is_shutdown():
 			Robot.update()
