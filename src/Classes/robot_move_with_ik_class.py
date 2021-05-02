@@ -30,12 +30,13 @@ class RobotCommander:
 			self.r = rospy.Rate(rate)
 			print "robot_move_with_ik Node Created"
 
-		self.robot_init = Pose(Point(-0.136, 0.490, 0.687), Quaternion(-0.697, 0.005, 0.012, 0.717))
+		# self.robot_init = Pose(Point(-0.136, 0.490, 0.687), Quaternion(-0.697, 0.005, 0.012, 0.717))
+		self.robot_init = Pose(Point(0.3921999999969438, 0.08119999999999986,  0.6871000000019204), Quaternion(0.0, 0.0, 0.0, 1.0))
 		print "============ Arm current pose: ", self.robot_init
 		# print "click Enter to continue"
 		# dummy_input = raw_input()
 
-		self.home = [pi/2, -pi/2, 0.0, pi, -pi/2, 0.0]
+		self.home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
 		self.target_pose = Pose()
 		self.joint_angles = JointState()
 		self.joint_angles.position = self.home
@@ -70,8 +71,8 @@ class RobotCommander:
 
 	def cartesian_control_with_IMU(self):	
 		print "robot_pose:", self.robot_pose.position
-		self.robot_pose.position.x = self.robot_init.position.x + self.scale * self.target_pose.position.y
-		self.robot_pose.position.y = self.robot_init.position.y + self.scale * self.target_pose.position.x
+		self.robot_pose.position.x = self.robot_init.position.x + self.scale * self.target_pose.position.x
+		self.robot_pose.position.y = self.robot_init.position.y + self.scale * self.target_pose.position.y
 		self.robot_pose.position.z = self.robot_init.position.z + self.scale * self.target_pose.position.z
 		self.robot_pose.orientation = self.robot_init.orientation
 		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
