@@ -5,7 +5,7 @@ Node runner for /Classes/robot_move_with_ik_class.py
 """
 
 import rospy
-from Classes.robot_move_with_ik_class import RobotCommander
+from Classes.robot_move_with_ik_class_2arms import RobotCommander
 from math import pi
 
 

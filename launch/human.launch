@@ -25,8 +25,8 @@
   <!-- Start chest-to-wrist tf. Creates arm pose -->
   <node name="chest_to_wrist_tf" type="chest_to_wrist_tf.py" pkg="arm_motion_controller_pkg" />
   
-  <!-- From 2-arm motion, create a goal pose motion for robot -->
-  <node name="wrist_to_robot" type="wrist_to_robot.py" pkg="arm_motion_controller_pkg" />
+  <!-- From 2-arm motion, create a goal pose motion for robot 
+  <node name="wrist_to_robot" type="wrist_to_robot_2arms.py" pkg="arm_motion_controller_pkg" />-->
 
 </launch>
 
