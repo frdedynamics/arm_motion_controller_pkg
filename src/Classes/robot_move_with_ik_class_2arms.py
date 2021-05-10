@@ -16,6 +16,7 @@ from math import pi
 
 from geometry_msgs.msg import Pose, Point, Quaternion
 from sensor_msgs.msg import JointState
+from std_msgs.msg import String
 
 import actionlib
 import control_msgs.msg as cm
@@ -58,6 +59,15 @@ class RobotCommander:
 		self.g.trajectory = tm.JointTrajectory()
 		self.g.trajectory.joint_names = ['elbow_joint', 'shoulder_lift_joint', 'shoulder_pan_joint',
                'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint'] # gazebo model has this interesting order of joints
+
+		# self.states = { "1": "IDLE",
+		# 				"2": "APPROACH",
+		# 				"3": "LIFT",
+		# 				"4": "RELEASE"
+		# 			  }
+		self.state = "IDLE"
+		self.role = "HUMAN_LEADING"  # of "ROBOT_LEADING"
+		self.robot_leading_goal = String()
                
 
 	def init_subscribers_and_publishers(self):
@@ -65,6 +75,7 @@ class RobotCommander:
 		self.sub_steering_pose = rospy.Subscriber('/steering_pose', Pose, self.cb_steering_pose)
 		self.sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, self.cb_openrave_joints)
 		self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
+		self.pub_robot_leading_goal = rospy.Publisher('/robot_leading_goal', String, queue_size=1)
 
 
 	def cb_hand_pose(self, msg):
@@ -80,7 +91,7 @@ class RobotCommander:
 	def cb_openrave_joints(self, msg):
 		""" Subscribes calculated joint angles from IKsolver """
 		self.joint_angles = msg
-		print "openrave joint angles:", self.joint_angles
+		# print "openrave joint angles:", self.joint_angles
 
 
 	def cartesian_control_with_IMU(self):	
@@ -89,18 +100,79 @@ class RobotCommander:
 		self.target_pose.position.z = self.motion_hand_pose.position.z + self.s * self.steering_hand_pose.position.z
 		self.target_pose.orientation = self.motion_hand_pose.orientation
 
-		print "robot_pose:", self.robot_pose.position
+		# print "robot_pose:", self.robot_pose.position
 		self.robot_pose.position.x = self.robot_init.position.x + self.k * self.target_pose.position.x
 		self.robot_pose.position.y = self.robot_init.position.y + self.k * self.target_pose.position.y
 		self.robot_pose.position.z = self.robot_init.position.z + self.k * self.target_pose.position.z
 		self.robot_pose.orientation = self.robot_init.orientation
 		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
+
+	
+	def robot_move_predef_pose(self, goal):
+		self.robot_leading_goal.data = goal
+		# TODO: make such a function in robot_move_simple.py
+
 	
 
 	def update(self):
-		# print "here"
 		self.cartesian_control_with_IMU()
 
-		if(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707): # Clutch deactive
-			self.pub_tee_goal.publish(self.robot_pose)
+		# Palm up: active, palm dowm: idle
+		if not self.role == "ROBOT_LEADING":
+			self.robot_leading_goal.data = None
+			if(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
+				self.state = "IDLE"
+				# if steering arm vertically downwords when it is in IDLE
+				if(self.steering_hand_pose.position.x < -0.3 and self.steering_hand_pose.position.z < -0.4):
+					self.role = "ROBOT_LEADING"
+					self.state = "RELEASE"
+			elif(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707):
+				self.state = "ACTIVE"
+		else:
+			placed = self.robot_move_predef_pose("place")
+			if(placed):
+				home_state = self.robot_move_predef_pose("home")
+				if(home_state):
+					self.role = "HUMAN_LEADING"
+					self.state = "IDLE"
+
+		print "state:", self.state, "    role:", self.role
+
+		# if(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707): # Clutch deactive
+		# 	self.pub_tee_goal.publish(self.robot_pose)
+
+		try:
+			if(self.state == "ACTIVE"):
+				self.pub_tee_goal.publish(self.robot_pose)
+			elif(self.state == "IDLE"):
+				pass
+			elif(self.state == "RELEASE"):
+				pass
+			else:
+				raise AssertionError("Unknown collaboration state")
+
+		except AssertionError as e:
+			print e
+
+
+		# Horizontal home right hand:
+		#   x: -0.00147650952636
+		# 	y: 0.0330141547947
+		# 	z: 0.000745478409468
+		# 	orientation:
+		# 	x: 3.49697622801e-05
+		# 	y: -0.000729408027073
+		# 	z: 0.0405015150963
+		# 	w: 0.99917921016
+
+		# Vertical role-change pose:
+		# 	x: -0.480915422135
+		# 	y: -0.00188682688672
+		# 	z: -0.561566305906
+		# 	orientation:
+		# 	x: -0.0511205762636
+		# 	y: 0.648213259194
+		# 	z: 0.0576285159603
+		# 	w: 0.757552117967
+
 
