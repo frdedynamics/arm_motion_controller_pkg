@@ -31,12 +31,15 @@ class RobotCommander:
 			print "robot_move_with_ik Node Created"
 
 		# self.robot_init = Pose(Point(-0.136, 0.490, 0.687), Quaternion(-0.697, 0.005, 0.012, 0.717))
-		self.robot_init = Pose(Point(0.3921999999969438, 0.08119999999999986,  0.6871000000019204), Quaternion(0.0, 0.0, 0.0, 1.0))
+		# self.robot_init = Pose(Point(0.3921999999969438, 0.08119999999999986,  0.6871000000019204), Quaternion(0.0, 0.0, 0.0, 1.0)) // home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
+		self.robot_init = Pose(Point(-0.08119999999999973, 0.3921999999969438,  0.6871000000019204), Quaternion(0.0, 0.0, 0.707, 0.707))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
+
+
 		print "============ Arm current pose: ", self.robot_init
 		# print "click Enter to continue"
 		# dummy_input = raw_input()
 
-		self.home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
+		self.home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 		self.target_pose = Pose()
 		self.joint_angles = JointState()
 		self.joint_angles.position = self.home
