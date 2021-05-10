@@ -50,24 +50,40 @@ if __name__ == '__main__':
     mirror_state = None
     motion_state = None
     init_flag = False
+
+    left_htm_init = DHmatrices.pose_to_htm(wrist_left_pose)
+    right_htm_init = DHmatrices.pose_to_htm(wrist_right_pose)
+
+    left_htm_init_inv = np.linalg.inv(left_htm_init)
+
     while not rospy.is_shutdown():
-        if not mirror_state == 'y':
-            print "Move to mirror pose (touch to robot tool). Ready: y"
-            mirror_state = raw_input()
-        else:
-            if not init_flag:
-                left_htm_init = DHmatrices.pose_to_htm(wrist_left_pose)
-                right_htm_init = DHmatrices.pose_to_htm(wrist_right_pose)
-                init_flag = True
-            if not motion_state == 'y':
-                print "Start motion? Start: y"
-                motion_state = raw_input()
-            else:
-                tf_left = np.matmul(np.linalg.inv(left_htm_init), DHmatrices.pose_to_htm(wrist_left_pose))
-                tf_left_pose = DHmatrices.htm_to_pose(tf_left)
-                # hand_pose = DHmatrices.htm_to_pose(np.matmul(ur5e_init_htm, tf_left))
-                pub_hand_pose.publish(tf_left_pose)
-                # print "tf_left:", tf_left_pose
+        tf_left = np.matmul(left_htm_init_inv, DHmatrices.pose_to_htm(wrist_left_pose)) ## this is such a hard equation for the PC. why?
+        tf_left_pose = DHmatrices.htm_to_pose(tf_left)
+        # hand_pose = DHmatrices.htm_to_pose(np.matmul(ur5e_init_htm, tf_left))
+        pub_hand_pose.publish(tf_left_pose)
+        # print "tf_left:", tf_left_pose
             
         rate.sleep()
+
+
+    # while not rospy.is_shutdown():
+    #     if not mirror_state == 'y':
+    #         print "Move to mirror pose (touch to robot tool). Ready: y"
+    #         mirror_state = raw_input()
+    #     else:
+    #         if not init_flag:
+    #             left_htm_init = DHmatrices.pose_to_htm(wrist_left_pose)
+    #             right_htm_init = DHmatrices.pose_to_htm(wrist_right_pose)
+    #             init_flag = True
+    #         if not motion_state == 'y':
+    #             print "Start motion? Start: y"
+    #             motion_state = raw_input()
+    #         else:
+    #             tf_left = np.matmul(np.linalg.inv(left_htm_init), DHmatrices.pose_to_htm(wrist_left_pose))
+    #             tf_left_pose = DHmatrices.htm_to_pose(tf_left)
+    #             # hand_pose = DHmatrices.htm_to_pose(np.matmul(ur5e_init_htm, tf_left))
+    #             pub_hand_pose.publish(tf_left_pose)
+    #             # print "tf_left:", tf_left_pose
+            
+    #     rate.sleep()
 
