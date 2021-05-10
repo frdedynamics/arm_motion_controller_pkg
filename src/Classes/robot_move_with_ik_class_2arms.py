@@ -33,15 +33,15 @@ class RobotCommander:
 			print "robot_move_with_ik Node Created"
 
 		# self.robot_init = Pose(Point(-0.136, 0.490, 0.687), Quaternion(-0.697, 0.005, 0.012, 0.717))
-		# self.robot_init = Pose(Point(0.3921999999969438, 0.08119999999999986,  0.6871000000019204), Quaternion(0.0, 0.0, 0.0, 1.0)) // home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
-		self.robot_init = Pose(Point(-0.08119999999999973, 0.3921999999969438,  0.6871000000019204), Quaternion(0.0, 0.0, 0.707, 0.707))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
+		self.robot_init = Pose(Point(0.3921999999969438, 0.08119999999999986,  0.6871000000019204), Quaternion(0.0, 0.0, 0.0, 1.0)) # home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
+		# self.robot_init = Pose(Point(-0.08119999999999973, 0.3921999999969438,  0.6871000000019204), Quaternion(0.0, 0.0, 0.707, 0.707))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 
 
 		print "============ Arm current pose: ", self.robot_init
 		# print "click Enter to continue"
 		# dummy_input = raw_input()
 
-		self.home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
+		self.home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
 		self.target_pose = Pose()
 		self.motion_hand_pose = Pose()
 		self.steering_hand_pose = Pose()
@@ -99,33 +99,8 @@ class RobotCommander:
 
 	def update(self):
 		# print "here"
-		# test = [pi/2, -pi/2, 0.0, pi, pi/2, 0.0]
-		# self.send_joint_commands(test)
 		self.cartesian_control_with_IMU()
-		# self.send_joint_commands(self.joint_angles.position)
-		self.pub_tee_goal.publish(self.robot_pose)
 
+		if(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707): # Clutch deactive
+			self.pub_tee_goal.publish(self.robot_pose)
 
-	# def start_server(self):
-	# 	self.client = actionlib.SimpleActionClient('arm_controller/follow_joint_trajectory', cm.FollowJointTrajectoryAction)
-	# 	print "Waiting for server..."
-	# 	self.client.wait_for_server()
-	# 	print "Connected to server"
-	# 	print "Please make sure that your robot can move freely. Moving home."
-	# 	print "Press Enter to proceed: (Type 'n' for not safe)"
-	# 	dummy_input = raw_input()
-	# 	if not dummy_input == 'n':
-	# 		self.move_safe_flag = True
-
-	# 	if self.move_safe_flag == True:
-	# 		self.send_joint_commands(self.home)
-
-
-	# def send_joint_commands(self, current):
-	# 	joint_states = rospy.wait_for_message("joint_states", JointState)
-	# 	joints_pos = joint_states.position
-	# 	self.g.trajectory.points = [
-	# 		tm.JointTrajectoryPoint(positions=joints_pos, velocities=[0]*6, time_from_start=rospy.Duration(0.0)),
-	# 		tm.JointTrajectoryPoint(positions=current, velocities=[0]*6, time_from_start=rospy.Duration(0.4))]
-	# 	self.client.send_goal(self.g)
-	# 	self.client.wait_for_result()
