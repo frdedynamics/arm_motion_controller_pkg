@@ -122,17 +122,18 @@ class RobotCommander:
 		j1 = np.array(joints_list1)
 		j2 = np.array([joints_list2[2], joints_list2[1], joints_list2[0], joints_list2[3], joints_list2[4], joints_list2[5]])
 		# absolute(a - b) <= (atol + rtol * absolute(b))
-		return np.allclose(j1, j2, rtol=1e-03, atol=1e-05)
+		print j1[0]-j2[0]
+		return np.allclose(j1, j2, rtol=1e-03, atol=1e-04)
 
 	
 	def robot_move_predef_pose(self, goal):
 		self.robot_leading_goal.data = goal
-		result = RobotCommander.jointcomp(self.robot_joint_angles.position, self.openrave_joint_angles.position)
+		result = False
 		if not result:
 			self.pub_tee_goal.publish(goal)
 			result = RobotCommander.jointcomp(self.robot_joint_angles.position, self.openrave_joint_angles.position)
 			print "result", result
-		return False
+		return result
 
 	
 
@@ -148,7 +149,6 @@ class RobotCommander:
 				if(self.steering_hand_pose.position.x < -0.3 and self.steering_hand_pose.position.z < -0.4):
 					self.role = "ROBOT_LEADING"
 					self.state = "RELEASE"
-					# move_robot(release_pose)
 			elif(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707):
 				self.state = "ACTIVE"
 			try:
@@ -165,9 +165,17 @@ class RobotCommander:
 				print e
 
 		else:
-			placed = False
-			placed = self.robot_move_predef_pose(self.release_approach)
-			if(placed):
+			user_input = raw_input("Move to release pose?")
+			if user_input == 'y':
+				reach_flag = False
+				while not reach_flag:
+					reach_flag = self.robot_move_predef_pose(self.release_approach)
+					print "reach_flag", reach_flag
+				print "Robot at release approach"
+				sys.exit()
+			else:
+				sys.exit("unknown user input")
+			if(reach_flag): 
 				home_state = self.robot_move_predef_pose(self.robot_init)
 				if(home_state):
 					self.role = "HUMAN_LEADING"
