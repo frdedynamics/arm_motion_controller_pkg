@@ -13,6 +13,7 @@ import sys
 import rospy
 import copy
 from math import pi
+import numpy as np
 
 from geometry_msgs.msg import Pose, Point, Quaternion
 from sensor_msgs.msg import JointState
@@ -47,9 +48,10 @@ class RobotCommander:
 		self.target_pose = Pose()
 		self.motion_hand_pose = Pose()
 		self.steering_hand_pose = Pose()
-		self.joint_angles = JointState()
-		self.joint_angles.position = self.home
+		self.openrave_joint_angles = JointState()
+		self.openrave_joint_angles.position = self.home
 		self.robot_pose = Pose()
+		self.robot_joint_angles = JointState()
 
 		self.s = s
 		self.k = k
@@ -75,6 +77,7 @@ class RobotCommander:
 		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.cb_hand_pose)
 		self.sub_steering_pose = rospy.Subscriber('/steering_pose', Pose, self.cb_steering_pose)
 		self.sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, self.cb_openrave_joints)
+		self.sub_robot_joints = rospy.Subscriber('joint_states', JointState, self.cb_robot_joints)
 		self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
 		self.pub_robot_leading_goal = rospy.Publisher('/robot_leading_goal', String, queue_size=1)
 
@@ -91,8 +94,14 @@ class RobotCommander:
 	
 	def cb_openrave_joints(self, msg):
 		""" Subscribes calculated joint angles from IKsolver """
-		self.joint_angles = msg
-		# print "openrave joint angles:", self.joint_angles
+		self.openrave_joint_angles = msg
+		# print "openrave joint angles:", self.openrave_joint_angles
+
+
+	def cb_robot_joints(self, msg):
+		""" Subscribes calculated joint angles from IKsolver """
+		self.robot_joint_angles = msg
+
 
 
 	def cartesian_control_with_IMU(self):	
@@ -108,10 +117,22 @@ class RobotCommander:
 		self.robot_pose.orientation = self.robot_init.orientation
 		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
 
+	@staticmethod
+	def jointcomp(joints_list1, joints_list2):
+		j1 = np.array(joints_list1)
+		j2 = np.array([joints_list2[2], joints_list2[1], joints_list2[0], joints_list2[3], joints_list2[4], joints_list2[5]])
+		# absolute(a - b) <= (atol + rtol * absolute(b))
+		return np.allclose(j1, j2, rtol=1e-03, atol=1e-05)
+
 	
 	def robot_move_predef_pose(self, goal):
 		self.robot_leading_goal.data = goal
-		# TODO: make such a function in robot_move_simple.py
+		result = RobotCommander.jointcomp(self.robot_joint_angles.position, self.openrave_joint_angles.position)
+		if not result:
+			self.pub_tee_goal.publish(goal)
+			result = RobotCommander.jointcomp(self.robot_joint_angles.position, self.openrave_joint_angles.position)
+			print "result", result
+		return False
 
 	
 
@@ -144,9 +165,10 @@ class RobotCommander:
 				print e
 
 		else:
-			placed = self.robot_move_predef_pose("place")
+			placed = False
+			placed = self.robot_move_predef_pose(self.release_approach)
 			if(placed):
-				home_state = self.robot_move_predef_pose("home")
+				home_state = self.robot_move_predef_pose(self.robot_init)
 				if(home_state):
 					self.role = "HUMAN_LEADING"
 					self.state = "IDLE"
