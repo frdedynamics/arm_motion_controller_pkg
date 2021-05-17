@@ -234,6 +234,7 @@ class RobotCommander:
 					reach_flag = False
 					while not reach_flag:
 						reach_flag = self.robot_move_predef_pose(self.robot_init)
+					rospy.sleep(5)
 					self.role = "HUMAN_LEADING"
 					self.state = "IDLE"
 		
