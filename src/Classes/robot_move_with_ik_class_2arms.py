@@ -36,7 +36,8 @@ class RobotCommander:
 		# self.robot_init = Pose(Point(-0.136, 0.490, 0.687), Quaternion(-0.697, 0.005, 0.012, 0.717))
 		self.robot_init = Pose(Point(0.3921999999969438, 0.08119999999999986,  0.6871000000019204), Quaternion(0.0, 0.0, 0.0, 1.0)) # home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
 		# self.robot_init = Pose(Point(-0.08119999999999973, 0.3921999999969438,  0.6871000000019204), Quaternion(0.0, 0.0, 0.707, 0.707))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
-
+		self.release_approach = Pose(Point(0.335998903296, 0.348436973752, 0.689145008443), Quaternion(0.0, 0.0, 0.0, 1.0))
+		self.release = Pose(Point(0.307432865176, 0.338017468907, 0.510023624136), Quaternion(0.0, 0.0, 0.0, 1.0))
 
 		print "============ Arm current pose: ", self.robot_init
 		# print "click Enter to continue"
@@ -126,8 +127,22 @@ class RobotCommander:
 				if(self.steering_hand_pose.position.x < -0.3 and self.steering_hand_pose.position.z < -0.4):
 					self.role = "ROBOT_LEADING"
 					self.state = "RELEASE"
+					# move_robot(release_pose)
 			elif(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707):
 				self.state = "ACTIVE"
+			try:
+				if(self.state == "ACTIVE"):
+					self.pub_tee_goal.publish(self.robot_pose)
+				elif(self.state == "IDLE"):
+					pass
+				elif(self.state == "RELEASE"):
+					pass
+				else:
+					raise AssertionError("Unknown collaboration state")
+
+			except AssertionError as e:
+				print e
+
 		else:
 			placed = self.robot_move_predef_pose("place")
 			if(placed):
@@ -140,19 +155,6 @@ class RobotCommander:
 
 		# if(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707): # Clutch deactive
 		# 	self.pub_tee_goal.publish(self.robot_pose)
-
-		try:
-			if(self.state == "ACTIVE"):
-				self.pub_tee_goal.publish(self.robot_pose)
-			elif(self.state == "IDLE"):
-				pass
-			elif(self.state == "RELEASE"):
-				pass
-			else:
-				raise AssertionError("Unknown collaboration state")
-
-		except AssertionError as e:
-			print e
 
 
 		# Horizontal home right hand:
