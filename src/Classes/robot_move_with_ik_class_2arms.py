@@ -165,19 +165,38 @@ class RobotCommander:
 				print e
 
 		else:
-			user_input = raw_input("Move to release pose?")
+			## RELEASE APPROACH
+			user_input = raw_input("Move to RELEASE APPROACH pose?")
 			if user_input == 'y':
 				reach_flag = False
 				while not reach_flag:
 					reach_flag = self.robot_move_predef_pose(self.release_approach)
-					print "reach_flag", reach_flag
 				print "Robot at release approach"
-				sys.exit()
 			else:
 				sys.exit("unknown user input")
-			if(reach_flag): 
-				home_state = self.robot_move_predef_pose(self.robot_init)
-				if(home_state):
+
+			## RELEASE (or PLACE)
+			user_input = raw_input("Move to RELEASE pose?")
+			if user_input == 'y':
+				reach_flag = False
+				while not reach_flag:
+					reach_flag = self.robot_move_predef_pose(self.release)
+				print "Robot at RELEASE"
+				# Gripper_release()
+			else:
+				sys.exit("unknown user input")
+
+			## GO BACK HOME
+			user_input = raw_input("Move to INIT/HOME pose?")
+			if user_input == 'y':
+				reach_flag = False
+				while not reach_flag:
+					reach_flag = self.robot_move_predef_pose(self.release)
+				print "Robot at HOME"
+				print "Ready to new cycle"
+				print "Please move arms such that role:HUMAN_LEADING and state:IDLE"
+				user_input = raw_input("Ready to new cycle?")
+				if user_input == 'y':
 					self.role = "HUMAN_LEADING"
 					self.state = "IDLE"
 
