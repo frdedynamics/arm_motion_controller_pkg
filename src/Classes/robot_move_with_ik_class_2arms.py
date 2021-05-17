@@ -17,7 +17,7 @@ import numpy as np
 
 from geometry_msgs.msg import Pose, Point, Quaternion
 from sensor_msgs.msg import JointState
-from std_msgs.msg import String
+from std_msgs.msg import String, Int16
 
 import actionlib
 import control_msgs.msg as cm
@@ -47,6 +47,7 @@ class RobotCommander:
 		self.home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
 		self.target_pose = Pose()
 		self.motion_hand_pose = Pose()
+		self.hand_grip_strength = Int16()
 		self.steering_hand_pose = Pose()
 		self.openrave_joint_angles = JointState()
 		self.openrave_joint_angles.position = self.home
@@ -70,16 +71,24 @@ class RobotCommander:
 		# 			  }
 		self.state = "IDLE"
 		self.role = "HUMAN_LEADING"  # of "ROBOT_LEADING"
-		self.robot_leading_goal = String()
+		self.hrc_status = String()
                
 
 	def init_subscribers_and_publishers(self):
+		self.sub_hand_grip_strength = rospy.Subscriber('/hand_grip_strength', Int16, self.cb_hand_grip_strength)
 		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.cb_hand_pose)
 		self.sub_steering_pose = rospy.Subscriber('/steering_pose', Pose, self.cb_steering_pose)
 		self.sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, self.cb_openrave_joints)
 		self.sub_robot_joints = rospy.Subscriber('joint_states', JointState, self.cb_robot_joints)
 		self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
-		self.pub_robot_leading_goal = rospy.Publisher('/robot_leading_goal', String, queue_size=1)
+		self.pub_hrc_status = rospy.Publisher('/hrc_status', String, queue_size=1)
+
+
+	def cb_hand_grip_strength(self, msg):
+		""" Subscribes hand grip strength
+		Open: 255
+		Close: 0 """
+		self.hand_grip_strength = msg
 
 
 	def cb_hand_pose(self, msg):
@@ -99,9 +108,8 @@ class RobotCommander:
 
 
 	def cb_robot_joints(self, msg):
-		""" Subscribes calculated joint angles from IKsolver """
+		""" Subscribes real robot angles """
 		self.robot_joint_angles = msg
-
 
 
 	def cartesian_control_with_IMU(self):	
@@ -127,7 +135,6 @@ class RobotCommander:
 
 	
 	def robot_move_predef_pose(self, goal):
-		self.robot_leading_goal.data = goal
 		result = False
 		if not result:
 			self.pub_tee_goal.publish(goal)
@@ -135,14 +142,12 @@ class RobotCommander:
 			print "result", result
 		return result
 
-	
 
 	def update(self):
 		self.cartesian_control_with_IMU()
 
 		# Palm up: active, palm dowm: idle
 		if not self.role == "ROBOT_LEADING":
-			self.robot_leading_goal.data = None
 			if(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
 				self.state = "IDLE"
 				# if steering arm vertically downwords when it is in IDLE
@@ -150,10 +155,19 @@ class RobotCommander:
 					self.role = "ROBOT_LEADING"
 					self.state = "RELEASE"
 			elif(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707):
-				self.state = "ACTIVE"
+				self.state = "APPROACH"
 			try:
-				if(self.state == "ACTIVE"):
+				if(self.state == "APPROACH"):
 					self.pub_tee_goal.publish(self.robot_pose)
+					# check grip here
+					if(self.hand_grip_strength < 10):
+						self.state = "CO-LIFT"
+						while(self.hand_grip_strength < 10):
+							self.state = "CO-LIFT"
+							# do something extra? Change axes? Maybe robot take over from here?
+							# No way to leave CO-LIFT state unless hand releases
+						self.state == "RELEASE"
+
 				elif(self.state == "IDLE"):
 					pass
 				elif(self.state == "RELEASE"):
@@ -197,11 +211,16 @@ class RobotCommander:
 				print "Please move arms such that role:HUMAN_LEADING and state:IDLE"
 				user_input = raw_input("Ready to new cycle?")
 				if user_input == 'y':
+					reach_flag = False
+					while not reach_flag:
+						reach_flag = self.robot_move_predef_pose(self.robot_init)
 					self.role = "HUMAN_LEADING"
 					self.state = "IDLE"
-
+		
 		print "state:", self.state, "    role:", self.role
-
+		self.hrc_status = self.state + ',' + self.role
+		self.pub_hrc_status.publish(self.hrc_status)
+		
 		# if(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707): # Clutch deactive
 		# 	self.pub_tee_goal.publish(self.robot_pose)
 
