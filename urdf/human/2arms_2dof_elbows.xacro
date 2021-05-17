@@ -11,6 +11,8 @@
     <color rgba="1 1 1 1"/>
   </material>
 
+  <xacro:include filename="$(find ur5_with_hand_gazebo)/human_description/urdf/human.gazebo.xacro" />
+
   <xacro:include filename="spherical.urdf.xacro"/>
   <create/>
 
@@ -44,6 +46,16 @@
         <cylinder length="-0.0811138121076" radius="0.130553532998"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 -0.0405569060538"/>
+      <geometry>
+        <cylinder length="-0.0811138121076" radius="0.130553532998"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/spine_0">
     <visual>
@@ -52,6 +64,16 @@
         <cylinder length="0.0726248956383" radius="0.141172520845"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.0363124478192"/>
+      <geometry>
+        <cylinder length="0.0726248956383" radius="0.141172520845"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/spine_1"/>
   <link name="human/spine_2"/>
@@ -62,6 +84,16 @@
         <cylinder length="0.275888061853" radius="0.161172520845"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.137944030927"/>
+      <geometry>
+        <cylinder length="0.275888061853" radius="0.161172520845"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/shoulder_center">
     <visual>
@@ -70,6 +102,16 @@
         <cylinder length="0.10127011497" radius="0.181172520845"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.050635057485"/>
+      <geometry>
+        <cylinder length="0.10127011497" radius="0.181172520845"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/neck_0"/>
   <link name="human/neck_1"/>
@@ -80,6 +122,16 @@
         <cylinder length="0.204279422944" radius="0.04"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0.102139711472"/>
+      <geometry>
+        <cylinder length="0.204279422944" radius="0.04"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/head">
     <visual>
@@ -88,6 +140,16 @@
         <sphere radius="0.1"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.1"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <joint name="hip" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -148,6 +210,16 @@
         <cylinder length="0.294151609476" radius="0.05"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 1.57079632679 0" xyz="0.147075804738 0 0"/>
+      <geometry>
+        <cylinder length="0.294151609476" radius="0.05"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/right_elbow_0"/>
   <link name="human/right_elbow">
@@ -157,6 +229,16 @@
         <cylinder length="0.274149473988" radius="0.025"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 1.57079632679 0" xyz="0.137074736994 0 0"/>
+      <geometry>
+        <cylinder length="0.274149473988" radius="0.025"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/right_wrist_0"/>
   <link name="human/right_wrist_1"/>
@@ -167,6 +249,16 @@
         <box size="0.1 0.05 .005"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.05 0 0"/>
+      <geometry>
+        <box size="0.1 0.05 .005"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/right_hand"/>
   <!-- Joints -->
@@ -248,6 +340,16 @@
         <cylinder length="0.294151609476" radius="0.05"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 1.57079632679 0" xyz="0.147075804738 0 0"/>
+      <geometry>
+        <cylinder length="0.294151609476" radius="0.05"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/left_elbow_0"/>
   <link name="human/left_elbow">
@@ -257,6 +359,16 @@
         <cylinder length="0.274149473988" radius="0.025"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 1.57079632679 0" xyz="0.137074736994 0 0"/>
+      <geometry>
+        <cylinder length="0.274149473988" radius="0.025"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/left_wrist_0"/>
   <link name="human/left_wrist_1"/>
@@ -267,6 +379,16 @@
         <box size="0.1 0.05 .005"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.05 0 0"/>
+      <geometry>
+        <box size="0.1 0.05 .005"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/left_hand"/>
   <!-- Joints -->
@@ -351,6 +473,16 @@
         <cylinder length="0.564421893516" radius="0.05"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 1.57079632679 0" xyz="0.282210946758 0 0"/>
+      <geometry>
+        <cylinder length="0.564421893516" radius="0.05"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/right_knee">
     <visual>
@@ -359,6 +491,16 @@
         <cylinder length="0.407337097232" radius="0.025"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 1.57079632679 0" xyz="0.203668548616 0 0"/>
+      <geometry>
+        <cylinder length="0.407337097232" radius="0.025"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/right_ankle_0"/>
   <link name="human/right_ankle">
@@ -368,6 +510,16 @@
         <box size="0.1 0.05 .005"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.05 0 0"/>
+      <geometry>
+        <box size="0.1 0.05 .005"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/right_foot"/>
   <!-- Joints -->
@@ -425,6 +577,16 @@
         <cylinder length="0.564421893516" radius="0.05"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 1.57079632679 0" xyz="0.282210946758 0 0"/>
+      <geometry>
+        <cylinder length="0.564421893516" radius="0.05"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/left_knee">
     <visual>
@@ -433,6 +595,16 @@
         <cylinder length="0.407337097232" radius="0.025"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 1.57079632679 0" xyz="0.203668548616 0 0"/>
+      <geometry>
+        <cylinder length="0.407337097232" radius="0.025"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/left_ankle_0"/>
   <link name="human/left_ankle">
@@ -442,6 +614,16 @@
         <box size="0.1 0.05 .005"/>
       </geometry>
     </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0.05 0 0"/>
+      <geometry>
+        <box size="0.1 0.05 .005"/>
+      </geometry>
+		</collision>
+		<inertial>
+      <mass value="1.0"/>
+      <inertia ixx="0.00001" ixy="0.0" ixz="0.0" iyy="0.00001" iyz="0.0" izz="0.00001"/>
+		</inertial>
   </link>
   <link name="human/left_foot"/>
   <!-- Joints -->
