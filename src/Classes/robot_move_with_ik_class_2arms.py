@@ -112,7 +112,7 @@ class RobotCommander:
 		self.robot_joint_angles = msg
 
 
-	def cartesian_control_with_IMU(self):	
+	def cartesian_control_2_arms(self):	
 		self.target_pose.position.x = self.motion_hand_pose.position.x + self.s * self.steering_hand_pose.position.x
 		self.target_pose.position.y = self.motion_hand_pose.position.y + self.s * self.steering_hand_pose.position.y
 		self.target_pose.position.z = self.motion_hand_pose.position.z + self.s * self.steering_hand_pose.position.z
@@ -124,6 +124,16 @@ class RobotCommander:
 		self.robot_pose.position.z = self.robot_init.position.z + self.k * self.target_pose.position.z
 		self.robot_pose.orientation = self.robot_init.orientation
 		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
+
+
+	def cartesian_control_1_arm(self):	
+		# print "robot_pose:", self.robot_pose.position
+		self.robot_pose.position.x = self.robot_init.position.x + self.k * self.motion_hand_pose.position.x
+		self.robot_pose.position.y = self.robot_init.position.y + self.k * self.motion_hand_pose.position.y
+		self.robot_pose.position.z = self.robot_init.position.z + self.k * self.motion_hand_pose.position.z
+		self.robot_pose.orientation = self.robot_init.orientation
+		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
+
 
 	@staticmethod
 	def jointcomp(joints_list1, joints_list2):
@@ -144,34 +154,44 @@ class RobotCommander:
 
 
 	def update(self):
-		self.cartesian_control_with_IMU()
 
 		# Palm up: active, palm dowm: idle
 		if not self.role == "ROBOT_LEADING":
-			if(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
+			if(self.state == "CO-LIFT"):
+				if(self.steering_hand_pose.position.x < -0.3 and self.steering_hand_pose.position.z < -0.4):
+					self.state = "RELEASE"
+				else:
+					if(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
+						self.state = "IDLE"
+					else:
+						self.state == "CO-LIFT"
+			elif(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
 				self.state = "IDLE"
 				# if steering arm vertically downwords when it is in IDLE
-				if(self.steering_hand_pose.position.x < -0.3 and self.steering_hand_pose.position.z < -0.4):
-					self.role = "ROBOT_LEADING"
-					self.state = "RELEASE"
+				# if(self.steering_hand_pose.position.x < -0.3 and self.steering_hand_pose.position.z < -0.4):
+				# 	self.state = "RELEASE"
 			elif(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707):
-				self.state = "APPROACH"
-			try:
-				if(self.state == "APPROACH"):
-					self.pub_tee_goal.publish(self.robot_pose)
-					# check grip here
-					if(self.hand_grip_strength < 10):
-						self.state = "CO-LIFT"
-						while(self.hand_grip_strength < 10):
-							self.state = "CO-LIFT"
-							# do something extra? Change axes? Maybe robot take over from here?
-							# No way to leave CO-LIFT state unless hand releases
-						self.state == "RELEASE"
+				if not (self.state == "CO-LIFT"):
+					self.state = "APPROACH"
 
+			try:
+				if(self.state == "APPROACH" or self.state == "CO-LIFT"): # ACTIVE
+					# check grip here
+					print "self.hand_grip_strength.data:", self.hand_grip_strength.data
+					if(self.hand_grip_strength.data < 10):
+						self.state = "CO-LIFT"
+						self.cartesian_control_1_arm()  # one hand free
+						# do something extra? Change axes? Maybe robot take over from here?
+						# No way to leave CO-LIFT state unless hand releases
+					else:
+						self.cartesian_control_2_arms()
+						
+					self.pub_tee_goal.publish(self.robot_pose)
+				
 				elif(self.state == "IDLE"):
 					pass
 				elif(self.state == "RELEASE"):
-					pass
+					self.role = "ROBOT_LEADING"
 				else:
 					raise AssertionError("Unknown collaboration state")
 
