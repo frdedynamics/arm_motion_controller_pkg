@@ -2,6 +2,16 @@
 
 <launch>
 
+  <arg name="paused" default="false" doc="Starts gazebo in paused mode" />
+  <arg name="gui" default="true" doc="Starts gazebo gui" />
+
+  <!-- startup simulated world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" default="$(find ur5_with_hand_gazebo)/world/exp_world.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+
   <param name="human_description" command="$(find xacro)/xacro --inorder '$(find arm_motion_controller_pkg)/urdf/human/2arms_2dof_elbows.xacro'"/>
 
   <!-- Combine joint values -->
@@ -12,6 +22,9 @@
 
   <!-- Show in Rviz   -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find arm_motion_controller_pkg)/launch/config/config.rviz"/> 
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param human_description -model robot -z 0.1" respawn="false" output="screen" />
 
   <!-- publish joint state
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
