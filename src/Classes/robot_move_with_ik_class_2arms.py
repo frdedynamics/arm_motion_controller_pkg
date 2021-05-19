@@ -24,6 +24,9 @@ import actionlib
 import control_msgs.msg as cm
 import trajectory_msgs.msg as tm
 
+sys.path.append('/home/gizem/catkin_ws/src/my_human_pkg/src/Classes')
+import Kinematics_with_Quaternions as kinematic
+
 class RobotCommander:
 	def __init__(self, rate=100, start_node=False, s=1.0, k=1.0):
 		"""Initializes the robot commander
@@ -58,10 +61,12 @@ class RobotCommander:
 		self.robot_pose = Pose()
 		self.robot_joint_angles = JointState()
 
+		self.hand_init_orientation = Quaternion()
+
 		self.s = s
 		self.k = k
 
-		self.move_safe_flag = False
+		self.init_flag = False
 
 		self.g = cm.FollowJointTrajectoryGoal()
 		self.g.trajectory = tm.JointTrajectory()
@@ -98,6 +103,10 @@ class RobotCommander:
 	def cb_hand_pose(self, msg):
 		""" Subscribes left hand pose """
 		self.motion_hand_pose = msg
+		if not self.init_flag:
+			self.hand_init_orientation = kinematic.q_invert(self.motion_hand_pose.orientation)
+			print "Hand init set:", self.hand_init_orientation
+			self.init_flag = True
 	
 
 	def cb_steering_pose(self, msg):
@@ -126,7 +135,7 @@ class RobotCommander:
 		self.robot_pose.position.x = self.robot_init.position.x + self.k * self.target_pose.position.x
 		self.robot_pose.position.y = self.robot_init.position.y + self.k * self.target_pose.position.y
 		self.robot_pose.position.z = self.robot_init.position.z + self.k * self.target_pose.position.z
-		self.robot_pose.orientation = self.target_pose.orientation
+		self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
 		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
 
 
@@ -135,7 +144,7 @@ class RobotCommander:
 		self.robot_pose.position.x = self.robot_init.position.x + self.k * self.motion_hand_pose.position.x
 		self.robot_pose.position.y = self.robot_init.position.y + self.k * self.motion_hand_pose.position.y
 		self.robot_pose.position.z = self.robot_init.position.z + self.k * self.motion_hand_pose.position.z
-		self.robot_pose.orientation = self.robot_init.orientation
+		self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
 		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
 
 
@@ -158,7 +167,6 @@ class RobotCommander:
 
 
 	def update(self):
-
 		# Palm up: active, palm dowm: idle
 		if not self.role == "ROBOT_LEADING":
 			if(self.state == "CO-LIFT"):
@@ -181,7 +189,7 @@ class RobotCommander:
 			try:
 				if(self.state == "APPROACH" or self.state == "CO-LIFT"): # ACTIVE
 					# check grip here
-					print "self.hand_grip_strength.data:", self.hand_grip_strength.data
+					# print "self.hand_grip_strength.data:", self.hand_grip_strength.data
 					if(self.hand_grip_strength.data > 100):
 						self.state = "CO-LIFT"
 						self.cartesian_control_1_arm()  # one hand free
