@@ -10,12 +10,12 @@ from sensor_msgs.msg import JointState
 
 MULTIPLIER = 1.0
 SHIFT = 0.0
-SECONDS_PER_MOVE = 0.1  # doesn't need to be accurate, will accelerate to catch up and smooth its movement
+SECONDS_PER_MOVE = 0.002  # doesn't need to be accurate, will accelerate to catch up and smooth its movement
 
 
 NODE_NAME = "ur5e_sin_publisher"
-PUBLISHER = "/arm_controller/command"
-# PUBLISHER = "/scaled_pos_joint_traj_controller/command"
+# PUBLISHER = "/arm_controller/command"
+PUBLISHER = "/scaled_pos_joint_traj_controller/command"
 SUBSCRIBER = "/joint_states_openrave"
 
 JOINT_NAMES = ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint',
