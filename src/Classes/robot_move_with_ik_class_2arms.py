@@ -18,7 +18,7 @@ import numpy as np
 
 from geometry_msgs.msg import Pose, Point, Quaternion
 from sensor_msgs.msg import JointState
-from std_msgs.msg import String, Int16
+from std_msgs.msg import String, Int16, Float64
 
 import actionlib
 import control_msgs.msg as cm
@@ -43,7 +43,8 @@ class RobotCommander:
 		# self.robot_init = Pose(Point(-0.08119999999999973, 0.3921999999969438,  0.6871000000019204), Quaternion(0.0, 0.0, 0.707, 0.707))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 
 
-		self.robot_init = Pose(Point(-0.268719045144, -0.338337565315,  0.148510892571), Quaternion(-0.345444335525, 0.643054800766, 0.63727196504, -0.247048936124))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
+
+		self.robot_init = Pose(Point(0.0277484944501, -0.431175433417,  0.148510892571), Quaternion(0.542714452022, -0.464001924238, -0.516758109708, 0.472360343298))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 		self.release_approach = Pose(Point(0.6395040721, -0.097155082343, 0.489161062743), Quaternion(-0.691030388932, 0.0919664982241, -0.0804260519973, 0.71242600664))
 		self.release = Pose(Point(0.638477428288, -0.0945406788611, 0.383795746435), Quaternion(-0.690892925071, 0.0923178347331, -0.0809326119407, 0.712456522043))
 
@@ -51,7 +52,7 @@ class RobotCommander:
 		# print "click Enter to continue"
 		# dummy_input = raw_input()
 
-		self.home = [d2r(-139.29), d2r(-39.49), d2r(117.12), d2r(109.50), d2r(-80.88), d2r(92.66)]
+		self.home = [d2r(-97.15), d2r(-39.49), d2r(117.12), d2r(109.50), d2r(-80.88), d2r(90.0)]
 		self.target_pose = Pose()
 		self.motion_hand_pose = Pose()
 		self.hand_grip_strength = Int16()
@@ -84,7 +85,7 @@ class RobotCommander:
                
 
 	def init_subscribers_and_publishers(self):
-		self.sub_hand_grip_strength = rospy.Subscriber('/hand_grip_strength', Int16, self.cb_hand_grip_strength)
+		self.sub_hand_grip_strength = rospy.Subscriber('/cmd_grip_pos', Float64, self.cb_hand_grip_strength)
 		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.cb_hand_pose)
 		self.sub_steering_pose = rospy.Subscriber('/steering_pose', Pose, self.cb_steering_pose)
 		self.sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, self.cb_openrave_joints)
@@ -135,8 +136,8 @@ class RobotCommander:
 		self.robot_pose.position.x = self.robot_init.position.x + self.k * self.target_pose.position.x
 		self.robot_pose.position.y = self.robot_init.position.y + self.k * self.target_pose.position.y
 		self.robot_pose.position.z = self.robot_init.position.z + self.k * self.target_pose.position.z
-		self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
-		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
+		# self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
+		self.robot_pose.orientation = self.robot_init.orientation
 
 
 	def cartesian_control_1_arm(self):	
@@ -144,8 +145,8 @@ class RobotCommander:
 		self.robot_pose.position.x = self.robot_init.position.x + self.k * self.motion_hand_pose.position.x
 		self.robot_pose.position.y = self.robot_init.position.y + self.k * self.motion_hand_pose.position.y
 		self.robot_pose.position.z = self.robot_init.position.z + self.k * self.motion_hand_pose.position.z
-		self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
-		# robot_pose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose_target.orientation)
+		# self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
+		self.robot_pose.orientation = self.robot_init.orientation
 
 
 	@staticmethod
@@ -190,7 +191,7 @@ class RobotCommander:
 				if(self.state == "APPROACH" or self.state == "CO-LIFT"): # ACTIVE
 					# check grip here
 					# print "self.hand_grip_strength.data:", self.hand_grip_strength.data
-					if(self.hand_grip_strength.data > 100):
+					if(self.hand_grip_strength.data > 10):
 						self.state = "CO-LIFT"
 						self.cartesian_control_1_arm()  # one hand free
 						# do something extra? Change axes? Maybe robot take over from here?
