@@ -63,6 +63,7 @@ class RobotCommander:
 		self.robot_joint_angles = JointState()
 
 		self.hand_init_orientation = Quaternion()
+		self.human_to_robot_init_orientation = Quaternion(0.0, 0.0, 0.707, 0.707)
 
 		self.s = s
 		self.k = k
@@ -133,9 +134,10 @@ class RobotCommander:
 		self.target_pose.orientation = self.motion_hand_pose.orientation
 
 		# print "robot_pose:", self.robot_pose.position
-		self.robot_pose.position.x = self.robot_init.position.x + self.k * self.target_pose.position.x
-		self.robot_pose.position.y = self.robot_init.position.y + self.k * self.target_pose.position.y
-		self.robot_pose.position.z = self.robot_init.position.z + self.k * self.target_pose.position.z
+		corrected_target_pose = kinematic.q_rotate(self.human_to_robot_init_orientation, self.target_pose.position)
+		self.robot_pose.position.x = self.robot_init.position.x + self.k * corrected_target_pose[0]
+		self.robot_pose.position.y = self.robot_init.position.y + self.k * corrected_target_pose[1]
+		self.robot_pose.position.z = self.robot_init.position.z + self.k * corrected_target_pose[2]
 		# self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
 		self.robot_pose.orientation = self.robot_init.orientation
 

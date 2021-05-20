@@ -23,7 +23,7 @@ import pyquaternion as pq
 from sensor_msgs.msg import JointState
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Vector3
-from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Quaternion, Point
 from tf.transformations import quaternion_matrix as q2m
 from tf.transformations import euler_from_matrix as m2e
 from tf.transformations import euler_from_quaternion as q2e
@@ -63,6 +63,10 @@ def q_rotate(q, v):
                           2*v[0]*(q.w*q.z + q.x*q.y) + v[1]*(q.w**2 - q.x**2 + q.y**2 - q.z**2) + 2*v[2]*(q.y*q.z - q.w*q.x),
                           2*v[0]*(q.x*q.z - q.w*q.y) + 2*v[1]*(q.w*q.x + q.y*q.z) + v[2]*(q.w**2 - q.x**2 - q.y**2 + q.z**2)])
     elif type(q) == Quaternion and type(v) == Vector3:
+        v_rotated = np.array([v.x*(q.w**2 + q.x**2 - q.y**2 - q.z**2) + 2*v.y*(q.x*q.y-q.w*q.z) + 2*v.z*(q.w*q.y + q.x*q.z),
+                          2*v.x*(q.w*q.z + q.x*q.y) + v.y*(q.w**2 - q.x**2 + q.y**2 - q.z**2) + 2*v.z*(q.y*q.z - q.w*q.x),
+                          2*v.x*(q.x*q.z - q.w*q.y) + 2*v.y*(q.w*q.x + q.y*q.z) + v.z*(q.w**2 - q.x**2 - q.y**2 + q.z**2)])
+    elif type(q) == Quaternion and type(v) == Point:
         v_rotated = np.array([v.x*(q.w**2 + q.x**2 - q.y**2 - q.z**2) + 2*v.y*(q.x*q.y-q.w*q.z) + 2*v.z*(q.w*q.y + q.x*q.z),
                           2*v.x*(q.w*q.z + q.x*q.y) + v.y*(q.w**2 - q.x**2 + q.y**2 - q.z**2) + 2*v.z*(q.y*q.z - q.w*q.x),
                           2*v.x*(q.x*q.z - q.w*q.y) + 2*v.y*(q.w*q.x + q.y*q.z) + v.z*(q.w**2 - q.x**2 - q.y**2 + q.z**2)])
