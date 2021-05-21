@@ -45,7 +45,7 @@ class RobotCommander:
 
 		self.robot_init = Pose(Point(0.0541860145827, -0.584139173043,  0.189550620537), Quaternion(0.542714478609, -0.464001894512, -0.516758121814, 0.472360328708))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 		self.release_approach = Pose(Point(0.6395040721, -0.097155082343, 0.489161062743), Quaternion(-0.691030388932, 0.0919664982241, -0.0804260519973, 0.71242600664))
-		self.release = Pose(Point(0.638477428288, -0.0945406788611, 0.383795746435), Quaternion(-0.690892925071, 0.0923178347331, -0.0809326119407, 0.712456522043))
+		self.release = Pose(Point(0.262223112379, -0.599350345894, -0.200885469139), Quaternion(-0.551759417935, 0.446858904931, -0.372740929174, 0.597446954568))
 
 		print "============ Arm current pose: ", self.robot_init
 		# print "click Enter to continue"
@@ -172,7 +172,8 @@ class RobotCommander:
 		# Palm up: active, palm dowm: idle
 		if not self.role == "ROBOT_LEADING":
 			if(self.state == "CO-LIFT"):
-				if(self.steering_hand_pose.position.x < -0.3 and self.steering_hand_pose.position.z < -0.4):
+				print "steering_hand_pose.position.x and steering_hand_pose.position.z", self.steering_hand_pose.position.x, self.steering_hand_pose.position.z
+				if(self.steering_hand_pose.position.x < -0.2 and self.steering_hand_pose.position.z < -0.3):
 					self.state = "RELEASE"
 				else:
 					if(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
@@ -213,15 +214,15 @@ class RobotCommander:
 				print e
 
 		else:
-			## RELEASE APPROACH
-			user_input = raw_input("Move to RELEASE APPROACH pose?")
-			if user_input == 'y':
-				reach_flag = False
-				while not reach_flag:
-					reach_flag = self.robot_move_predef_pose(self.release_approach)
-				print "Robot at release approach"
-			else:
-				sys.exit("unknown user input")
+			# ## RELEASE APPROACH
+			# user_input = raw_input("Move to RELEASE APPROACH pose?")
+			# if user_input == 'y':
+			# 	reach_flag = False
+			# 	while not reach_flag:
+			# 		reach_flag = self.robot_move_predef_pose(self.release_approach)
+			# 	print "Robot at release approach"
+			# else:
+			# 	sys.exit("unknown user input")
 
 			## RELEASE (or PLACE)
 			user_input = raw_input("Move to RELEASE pose?")
