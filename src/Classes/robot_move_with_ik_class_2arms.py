@@ -85,7 +85,7 @@ class RobotCommander:
                
 
 	def init_subscribers_and_publishers(self):
-		self.sub_hand_grip_strength = rospy.Subscriber('/cmd_grip_pos', Float64, self.cb_hand_grip_strength)
+		self.sub_hand_grip_strength = rospy.Subscriber('/robotiq_grip_gap', Int16, self.cb_hand_grip_strength)
 		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.cb_hand_pose)
 		self.sub_steering_pose = rospy.Subscriber('/steering_pose', Pose, self.cb_steering_pose)
 		self.sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, self.cb_openrave_joints)
@@ -191,8 +191,8 @@ class RobotCommander:
 			try:
 				if(self.state == "APPROACH" or self.state == "CO-LIFT"): # ACTIVE
 					# check grip here
-					# print "self.hand_grip_strength.data:", self.hand_grip_strength.data
-					if(self.hand_grip_strength.data > 10):
+					print "self.hand_grip_strength.data:", self.hand_grip_strength.data
+					if(self.hand_grip_strength.data > 100):
 						self.state = "CO-LIFT"
 						self.cartesian_control_1_arm()  # one hand free
 						# do something extra? Change axes? Maybe robot take over from here?
