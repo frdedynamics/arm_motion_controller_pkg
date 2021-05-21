@@ -43,8 +43,7 @@ class RobotCommander:
 		# self.robot_init = Pose(Point(-0.08119999999999973, 0.3921999999969438,  0.6871000000019204), Quaternion(0.0, 0.0, 0.707, 0.707))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 
 
-
-		self.robot_init = Pose(Point(0.0277484944501, -0.431175433417,  0.148510892571), Quaternion(0.542714452022, -0.464001924238, -0.516758109708, 0.472360343298))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
+		self.robot_init = Pose(Point(0.0541860145827, -0.584139173043,  0.189550620537), Quaternion(0.542714478609, -0.464001894512, -0.516758121814, 0.472360328708))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 		self.release_approach = Pose(Point(0.6395040721, -0.097155082343, 0.489161062743), Quaternion(-0.691030388932, 0.0919664982241, -0.0804260519973, 0.71242600664))
 		self.release = Pose(Point(0.638477428288, -0.0945406788611, 0.383795746435), Quaternion(-0.690892925071, 0.0923178347331, -0.0809326119407, 0.712456522043))
 
@@ -52,7 +51,7 @@ class RobotCommander:
 		# print "click Enter to continue"
 		# dummy_input = raw_input()
 
-		self.home = [d2r(-97.15), d2r(-39.49), d2r(117.12), d2r(109.50), d2r(-80.88), d2r(90.0)]
+		self.home = [-1.61718929, -0.90831965,  1.47090709, -0.43931657,  1.48942041, -1.56104302]
 		self.target_pose = Pose()
 		self.motion_hand_pose = Pose()
 		self.hand_grip_strength = Int16()
