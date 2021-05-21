@@ -128,14 +128,14 @@ class RobotCommander:
 
 	def cartesian_control_2_arms(self):	
 		self.target_pose.position.x = self.motion_hand_pose.position.x + self.s * self.steering_hand_pose.position.x
-		self.target_pose.position.y = self.motion_hand_pose.position.y + self.s * self.steering_hand_pose.position.y
+		self.target_pose.position.y = (self.motion_hand_pose.position.y + self.s * self.steering_hand_pose.position.y)
 		self.target_pose.position.z = self.motion_hand_pose.position.z + self.s * self.steering_hand_pose.position.z
 		self.target_pose.orientation = self.motion_hand_pose.orientation
 
 		# print "robot_pose:", self.robot_pose.position
 		corrected_target_pose = kinematic.q_rotate(self.human_to_robot_init_orientation, self.target_pose.position)
 		self.robot_pose.position.x = self.robot_init.position.x + self.k * corrected_target_pose[0]
-		self.robot_pose.position.y = self.robot_init.position.y + self.k * corrected_target_pose[1]
+		self.robot_pose.position.y = self.robot_init.position.y - self.k * corrected_target_pose[1]
 		self.robot_pose.position.z = self.robot_init.position.z + self.k * corrected_target_pose[2]
 		# self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
 		self.robot_pose.orientation = self.robot_init.orientation
