@@ -167,13 +167,13 @@ class RobotCommander:
 		corrected_motion_hand_pose = kinematic.q_rotate(self.human_to_robot_init_orientation, self.motion_hand_colift_pos_ch)
 		# print "corrected_motion_hand_pose:", corrected_motion_hand_pose
 		
-		self.robot_pose.position.x = self.robot_colift_init.position.x + self.k * self.motion_hand_colift_pos_ch.x
-		self.robot_pose.position.y = self.robot_colift_init.position.y + self.k * self.motion_hand_colift_pos_ch.y
-		self.robot_pose.position.z = self.robot_colift_init.position.z + self.k * self.motion_hand_colift_pos_ch.z
+		# self.robot_pose.position.x = self.robot_colift_init.position.x + self.k * self.motion_hand_colift_pos_ch.x
+		# self.robot_pose.position.y = self.robot_colift_init.position.y + self.k * self.motion_hand_colift_pos_ch.y
+		# self.robot_pose.position.z = self.robot_colift_init.position.z + self.k * self.motion_hand_colift_pos_ch.z
 
-		# self.robot_pose.position.x = self.robot_colift_init.position.x #+ self.k * corrected_motion_hand_pose[0]
-		# self.robot_pose.position.y = self.robot_colift_init.position.y #+ self.k * corrected_motion_hand_pose[1]
-		# self.robot_pose.position.z = self.robot_colift_init.position.z #+ self.k * corrected_motion_hand_pose[2]
+		self.robot_pose.position.x = self.robot_colift_init.position.x + self.k * corrected_motion_hand_pose[0]
+		self.robot_pose.position.y = self.robot_colift_init.position.y - self.k * corrected_motion_hand_pose[1]
+		self.robot_pose.position.z = self.robot_colift_init.position.z + self.k * corrected_motion_hand_pose[2]
 		# self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
 		self.robot_pose.orientation = self.robot_colift_init.orientation
 
@@ -209,8 +209,6 @@ class RobotCommander:
 					else:
 						self.state == "CO-LIFT"
 						if not self.colift_flag:
-							print "here init colift"
-							dummy = raw_input("Cont?")
 							self.robot_colift_init = self.tee_calc
 							self.colift_flag = True
 			elif(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
