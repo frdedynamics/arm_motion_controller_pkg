@@ -18,7 +18,7 @@ import numpy as np
 
 from geometry_msgs.msg import Pose, Point, Quaternion
 from sensor_msgs.msg import JointState
-from std_msgs.msg import String, Int16, Float64
+from std_msgs.msg import String, Int16, Float64, Bool
 
 import actionlib
 import control_msgs.msg as cm
@@ -101,6 +101,7 @@ class RobotCommander:
 		self.sub_robot_joints = rospy.Subscriber('/joint_states', JointState, self.cb_robot_joints)
 		self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
 		self.pub_hrc_status = rospy.Publisher('/hrc_status', String, queue_size=1)
+		self.pub_grip_cmd = rospy.Publisher('/cmd_grip', Bool, queue_size=1)
 
 
 	def cb_hand_grip_strength(self, msg):
@@ -262,6 +263,9 @@ class RobotCommander:
 				reach_flag = False
 				while not reach_flag:
 					reach_flag = self.robot_move_predef_pose(self.release)
+				cmd_release = Bool()
+				cmd_release = True
+				self.pub_grip_cmd.publish(cmd_release)
 				print "Robot at RELEASE"
 				# Gripper_release()
 			else:
