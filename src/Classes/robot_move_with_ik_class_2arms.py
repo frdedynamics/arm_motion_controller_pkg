@@ -27,6 +27,7 @@ import trajectory_msgs.msg as tm
 sys.path.append('/home/gizem/catkin_ws/src/my_human_pkg/src/Classes')
 import Kinematics_with_Quaternions as kinematic
 
+
 class RobotCommander:
 	def __init__(self, rate=100, start_node=False, s=1.0, k=1.0):
 		"""Initializes the robot commander
@@ -59,6 +60,8 @@ class RobotCommander:
 		self.openrave_joint_angles.position = self.home
 		self.robot_pose = Pose()
 		self.robot_joint_angles = JointState()
+
+		self.tee_calc = Pose()
 
 		self.robot_colift_init = Pose()
 		self.target_pose_colift_init = Pose()
@@ -93,6 +96,7 @@ class RobotCommander:
 		self.sub_hand_grip_strength = rospy.Subscriber('/robotiq_grip_gap', Int16, self.cb_hand_grip_strength)
 		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.cb_hand_pose)
 		self.sub_steering_pose = rospy.Subscriber('/steering_pose', Pose, self.cb_steering_pose)
+		self.sub_tee_calc = rospy.Subscriber('/Tee_calculated', Pose, self.cb_tee_calc)
 		self.sub_openrave_joints = rospy.Subscriber('/joint_states_openrave', JointState, self.cb_openrave_joints)
 		self.sub_robot_joints = rospy.Subscriber('/joint_states', JointState, self.cb_robot_joints)
 		self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
@@ -118,6 +122,10 @@ class RobotCommander:
 	def cb_steering_pose(self, msg):
 		""" Subscribes right hand pose """
 		self.steering_hand_pose = msg
+
+	def cb_tee_calc(self, msg):
+		""" Subscribes openrave calculated pose """
+		self.tee_calc = msg
 
 	
 	def cb_openrave_joints(self, msg):
@@ -187,8 +195,8 @@ class RobotCommander:
 			print "result", result
 		return result
 
-
 	def update(self):
+		global robot_colift_init
 		# Palm up: active, palm dowm: idle
 		if not self.role == "ROBOT_LEADING":
 			if(self.state == "CO-LIFT"):
@@ -201,7 +209,9 @@ class RobotCommander:
 					else:
 						self.state == "CO-LIFT"
 						if not self.colift_flag:
-							self.robot_colift_init = self.robot_pose
+							print "here init colift"
+							dummy = raw_input("Cont?")
+							self.robot_colift_init = self.tee_calc
 							self.colift_flag = True
 			elif(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
 				self.state = "IDLE"
