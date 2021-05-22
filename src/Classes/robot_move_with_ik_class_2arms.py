@@ -44,7 +44,7 @@ class RobotCommander:
 		# self.robot_init = Pose(Point(-0.08119999999999973, 0.3921999999969438,  0.6871000000019204), Quaternion(0.0, 0.0, 0.707, 0.707))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 
 		self.robot_init = Pose(Point(0.0541860145827, -0.584139173043,  0.189550620537), Quaternion(0.542714478609, -0.464001894512, -0.516758121814, 0.472360328708))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
-		# self.release_approach = Pose(Point(0.6395040721, -0.097155082343, 0.489161062743), Quaternion(-0.691030388932, 0.0919664982241, -0.0804260519973, 0.71242600664))
+		self.release_approach = Pose(Point(-0.465337306348, -0.226618254474, 0.0329134063267), Quaternion(0.561379785159, -0.440200301152, -0.496712122833, 0.494321250515))
 		self.release = Pose(Point(-0.460710112314, -0.353837082507, 0.0171878089798), Quaternion(0.561713498746, -0.4400991731221, -0.496436115888, 0.494309463783))
 
 		print "============ Arm current pose: ", self.robot_init
@@ -76,6 +76,7 @@ class RobotCommander:
 
 		self.init_flag = False
 		self.colift_flag = False
+		self.joint_flag = False
 
 		self.g = cm.FollowJointTrajectoryGoal()
 		self.g.trajectory = tm.JointTrajectory()
@@ -138,6 +139,7 @@ class RobotCommander:
 	def cb_robot_joints(self, msg):
 		""" Subscribes real robot angles """
 		self.robot_joint_angles = msg
+		self.joint_flag = True
 		# print "robot joints:", self.robot_joint_angles.position
 
 
@@ -184,14 +186,16 @@ class RobotCommander:
 		j1 = np.array(joints_list1)
 		j2 = np.array([joints_list2[2], joints_list2[1], joints_list2[0], joints_list2[3], joints_list2[4], joints_list2[5]])
 		# absolute(a - b) <= (atol + rtol * absolute(b))
-		print ((j1[0]-j2[0])+(j1[1]-j2[1])+(j1[2]-j2[2])+(j1[3]-j2[3])+(j1[4]-j2[4])+(j1[5]-j2[5]))
-		return np.allclose(j1, j2, rtol=1e-03, atol=1e-04)
+		diff = ((j1[0]-j2[0])+(j1[1]-j2[1])+(j1[2]-j2[2])+(j1[3]-j2[3])+(j1[4]-j2[4])+(j1[5]-j2[5]))
+		# return np.allclose(j1, j2, rtol=1e-03, atol=1e-04)
+		return diff
 
 	
 	def robot_move_predef_pose(self, goal):
 		result = False
 		if not result:
 			self.pub_tee_goal.publish(goal)
+			rospy.sleep(0.5)
 			print self.robot_joint_angles.position, "current joints"
 			print self.openrave_joint_angles.position, "openrave joints"
 			result = RobotCommander.jointcomp(self.robot_joint_angles.position, self.openrave_joint_angles.position)
@@ -249,25 +253,13 @@ class RobotCommander:
 				print e
 
 		else:
-			# ## RELEASE APPROACH
-			# user_input = raw_input("Move to RELEASE APPROACH pose?")
-			# if user_input == 'y':
-			# 	reach_flag = False
-			# 	while not reach_flag:
-			# 		reach_flag = self.robot_move_predef_pose(self.release_approach)
-			# 	print "Robot at release approach"
-			# else:
-			# 	sys.exit("unknown user input")
-
 			## RELEASE (or PLACE)
 			user_input = raw_input("Move to RELEASE pose?")
 			if user_input == 'y':
-				reach_flag = False
-				i = 0
-				while not reach_flag:
-					reach_flag = self.robot_move_predef_pose(self.release)
-					print i, "going to release"
-					i = i+1
+				reach_dist = 10
+				while abs(reach_dist)> 0.001:
+					reach_dist = self.robot_move_predef_pose(self.release)
+					print "moving to release. dist:", reach_dist
 				cmd_release = Bool()
 				cmd_release = True
 				self.pub_grip_cmd.publish(cmd_release)
@@ -276,56 +268,42 @@ class RobotCommander:
 			else:
 				sys.exit("unknown user input")
 
+			# ## RELEASE APPROACH
+			rospy.sleep(4)  # Wait until the gripper is fully open
+			user_input = raw_input("Move to RELEASE APPROACH pose?")
+			if user_input == 'y':
+				reach_dist = 10
+				while abs(reach_dist)> 0.001:
+					reach_dist = self.robot_move_predef_pose(self.release_approach)
+				print "Robot at release approach"
+			else:
+				sys.exit("unknown user input")
+
 			## GO BACK HOME
 			user_input = raw_input("Move to INIT/HOME pose?")
 			if user_input == 'y':
-				# reach_flag = False
-				# while not reach_flag:
-				# 	reach_flag = self.robot_move_predef_pose(self.release)
-				# print "Robot at HOME"
-				# print "Ready to new cycle"
 				print "Please move arms such that role:HUMAN_LEADING and state:IDLE"
 				user_input = raw_input("Ready to new cycle?")
 				if user_input == 'y':
-					reach_flag = False
-					i = 0
-					while not reach_flag:
-						reach_flag = self.robot_move_predef_pose(self.robot_init)
-						print i, "going to home"
-						i = i+1
-					rospy.sleep(5)
+					reach_dist = 10
+					while abs(reach_dist)> 0.001:
+						reach_dist = self.robot_move_predef_pose(self.robot_init)
+						print "moving to release. dist:", reach_dist
+					# rospy.sleep(5)
 					self.role = "HUMAN_LEADING"
 					self.state = "IDLE"
 		
 		print "state:", self.state, "    role:", self.role
-		print self.robot_joint_angles.position, "current joints"
-		print self.openrave_joint_angles.position, "openrave joints"
+		# print self.robot_joint_angles.position, "current joints"
+		# print self.openrave_joint_angles.position, "openrave joints"
+		# if self.joint_flag:
+		# 	result = RobotCommander.jointcomp(self.robot_joint_angles.position, self.openrave_joint_angles.position)
+		# 	print "HERE", result
 		self.hrc_status = self.state + ',' + self.role
 		self.pub_hrc_status.publish(self.hrc_status)
 		self.r.sleep()
 		
 		# if(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707): # Clutch deactive
 		# 	self.pub_tee_goal.publish(self.robot_pose)
-
-
-		# Horizontal home right hand:
-		#   x: -0.00147650952636
-		# 	y: 0.0330141547947
-		# 	z: 0.000745478409468
-		# 	orientation:
-		# 	x: 3.49697622801e-05
-		# 	y: -0.000729408027073
-		# 	z: 0.0405015150963
-		# 	w: 0.99917921016
-
-		# Vertical role-change pose:
-		# 	x: -0.480915422135
-		# 	y: -0.00188682688672
-		# 	z: -0.561566305906
-		# 	orientation:
-		# 	x: -0.0511205762636
-		# 	y: 0.648213259194
-		# 	z: 0.0576285159603
-		# 	w: 0.757552117967
 
 
