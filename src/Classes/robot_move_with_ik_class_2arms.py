@@ -42,10 +42,9 @@ class RobotCommander:
 		# self.robot_init = Pose(Point(0.3921999999969438, 0.08119999999999986,  0.6871000000019204), Quaternion(0.0, 0.0, 0.0, 1.0)) # home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
 		# self.robot_init = Pose(Point(-0.08119999999999973, 0.3921999999969438,  0.6871000000019204), Quaternion(0.0, 0.0, 0.707, 0.707))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 
-
 		self.robot_init = Pose(Point(0.0541860145827, -0.584139173043,  0.189550620537), Quaternion(0.542714478609, -0.464001894512, -0.516758121814, 0.472360328708))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
-		self.release_approach = Pose(Point(0.6395040721, -0.097155082343, 0.489161062743), Quaternion(-0.691030388932, 0.0919664982241, -0.0804260519973, 0.71242600664))
-		self.release = Pose(Point(0.262223112379, -0.599350345894, -0.200885469139), Quaternion(-0.551759417935, 0.446858904931, -0.372740929174, 0.597446954568))
+		# self.release_approach = Pose(Point(0.6395040721, -0.097155082343, 0.489161062743), Quaternion(-0.691030388932, 0.0919664982241, -0.0804260519973, 0.71242600664))
+		self.release = Pose(Point(-0.460710112314, -0.353837082507, 0.0171878089798), Quaternion(0.561713498746, -0.4400991731221, -0.496436115888, 0.494309463783))
 
 		print "============ Arm current pose: ", self.robot_init
 		# print "click Enter to continue"
@@ -61,6 +60,11 @@ class RobotCommander:
 		self.robot_pose = Pose()
 		self.robot_joint_angles = JointState()
 
+		self.robot_colift_init = Pose()
+		self.target_pose_colift_init = Pose()
+		self.motion_hand_colift_init = Pose()
+		self.motion_hand_colift_pos_ch = Point()
+
 		self.hand_init_orientation = Quaternion()
 		self.human_to_robot_init_orientation = Quaternion(0.0, 0.0, 0.707, 0.707)
 
@@ -68,6 +72,7 @@ class RobotCommander:
 		self.k = k
 
 		self.init_flag = False
+		self.colift_flag = False
 
 		self.g = cm.FollowJointTrajectoryGoal()
 		self.g.trajectory = tm.JointTrajectory()
@@ -128,7 +133,7 @@ class RobotCommander:
 
 	def cartesian_control_2_arms(self):	
 		self.target_pose.position.x = self.motion_hand_pose.position.x + self.s * self.steering_hand_pose.position.x
-		self.target_pose.position.y = (self.motion_hand_pose.position.y + self.s * self.steering_hand_pose.position.y)
+		self.target_pose.position.y = self.motion_hand_pose.position.y + self.s * self.steering_hand_pose.position.y
 		self.target_pose.position.z = self.motion_hand_pose.position.z + self.s * self.steering_hand_pose.position.z
 		self.target_pose.orientation = self.motion_hand_pose.orientation
 
@@ -140,14 +145,24 @@ class RobotCommander:
 		# self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
 		self.robot_pose.orientation = self.robot_init.orientation
 
+		if not self.colift_flag:
+			self.robot_colift_init = self.robot_pose
+			self.motion_hand_colift_init = self.motion_hand_pose
+
 
 	def cartesian_control_1_arm(self):	
-		# print "robot_pose:", self.robot_pose.position
-		self.robot_pose.position.x = self.robot_init.position.x + self.k * self.motion_hand_pose.position.x
-		self.robot_pose.position.y = self.robot_init.position.y + self.k * self.motion_hand_pose.position.y
-		self.robot_pose.position.z = self.robot_init.position.z + self.k * self.motion_hand_pose.position.z
+		self.motion_hand_colift_pos_ch.x = self.motion_hand_pose.position.x - self.motion_hand_colift_init.position.x
+		self.motion_hand_colift_pos_ch.y = self.motion_hand_pose.position.y - self.motion_hand_colift_init.position.y
+		self.motion_hand_colift_pos_ch.z = self.motion_hand_pose.position.z - self.motion_hand_colift_init.position.z
+		print "self.motion_hand_colift_init:", self.motion_hand_colift_init
+
+		corrected_motion_hand_pose = kinematic.q_rotate(self.human_to_robot_init_orientation, self.motion_hand_colift_pos_ch)
+		# print "corrected_motion_hand_pose:", corrected_motion_hand_pose
+		self.robot_pose.position.x = self.robot_colift_init.position.x + self.k * corrected_motion_hand_pose[0]
+		self.robot_pose.position.y = self.robot_colift_init.position.y + self.k * corrected_motion_hand_pose[1]
+		self.robot_pose.position.z = self.robot_colift_init.position.z + self.k * corrected_motion_hand_pose[2]
 		# self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
-		self.robot_pose.orientation = self.robot_init.orientation
+		self.robot_pose.orientation = self.robot_colift_init.orientation
 
 
 	@staticmethod
@@ -172,7 +187,7 @@ class RobotCommander:
 		# Palm up: active, palm dowm: idle
 		if not self.role == "ROBOT_LEADING":
 			if(self.state == "CO-LIFT"):
-				print "steering_hand_pose.position.x and steering_hand_pose.position.z", self.steering_hand_pose.position.x, self.steering_hand_pose.position.z
+				# print "steering_hand_pose.position.x and steering_hand_pose.position.z", self.steering_hand_pose.position.x, self.steering_hand_pose.position.z
 				if(self.steering_hand_pose.position.x < -0.2 and self.steering_hand_pose.position.z < -0.3):
 					self.state = "RELEASE"
 				else:
@@ -180,6 +195,8 @@ class RobotCommander:
 						self.state = "IDLE"
 					else:
 						self.state == "CO-LIFT"
+						if not self.colift_flag:
+							self.colift_flag = True
 			elif(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
 				self.state = "IDLE"
 				# if steering arm vertically downwords when it is in IDLE
@@ -192,6 +209,7 @@ class RobotCommander:
 			try:
 				if(self.state == "APPROACH" or self.state == "CO-LIFT"): # ACTIVE
 					# check grip here
+					# print "motion:", self.motion_hand_pose.position, "hands:", self.target_pose.position
 					print "self.hand_grip_strength.data:", self.hand_grip_strength.data
 					if(self.hand_grip_strength.data > 100):
 						self.state = "CO-LIFT"
