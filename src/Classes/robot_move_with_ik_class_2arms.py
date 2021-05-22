@@ -138,6 +138,7 @@ class RobotCommander:
 	def cb_robot_joints(self, msg):
 		""" Subscribes real robot angles """
 		self.robot_joint_angles = msg
+		# print "robot joints:", self.robot_joint_angles.position
 
 
 	def cartesian_control_2_arms(self):	
@@ -155,15 +156,14 @@ class RobotCommander:
 		self.robot_pose.orientation = self.robot_init.orientation
 
 		self.motion_hand_colift_init = self.motion_hand_pose
-		print "here:", "motion_hand_colift_init:", self.motion_hand_colift_init.position
 
 
 	def cartesian_control_1_arm(self):	
 		self.motion_hand_colift_pos_ch.x = self.motion_hand_pose.position.x - self.motion_hand_colift_init.position.x
 		self.motion_hand_colift_pos_ch.y = self.motion_hand_pose.position.y - self.motion_hand_colift_init.position.y
 		self.motion_hand_colift_pos_ch.z = self.motion_hand_pose.position.z - self.motion_hand_colift_init.position.z
-		print "self.robot_colift_init:", self.robot_colift_init
-		print "self.motion_hand_colift_pos_ch:", self.motion_hand_colift_pos_ch
+		# print "self.robot_colift_init:", self.robot_colift_init
+		# print "self.motion_hand_colift_pos_ch:", self.motion_hand_colift_pos_ch
 
 		corrected_motion_hand_pose = kinematic.q_rotate(self.human_to_robot_init_orientation, self.motion_hand_colift_pos_ch)
 		# print "corrected_motion_hand_pose:", corrected_motion_hand_pose
@@ -184,7 +184,7 @@ class RobotCommander:
 		j1 = np.array(joints_list1)
 		j2 = np.array([joints_list2[2], joints_list2[1], joints_list2[0], joints_list2[3], joints_list2[4], joints_list2[5]])
 		# absolute(a - b) <= (atol + rtol * absolute(b))
-		print j1[0]-j2[0]
+		print ((j1[0]-j2[0])+(j1[1]-j2[1])+(j1[2]-j2[2])+(j1[3]-j2[3])+(j1[4]-j2[4])+(j1[5]-j2[5]))
 		return np.allclose(j1, j2, rtol=1e-03, atol=1e-04)
 
 	
@@ -192,6 +192,8 @@ class RobotCommander:
 		result = False
 		if not result:
 			self.pub_tee_goal.publish(goal)
+			print self.robot_joint_angles.position, "current joints"
+			print self.openrave_joint_angles.position, "openrave joints"
 			result = RobotCommander.jointcomp(self.robot_joint_angles.position, self.openrave_joint_angles.position)
 			print "result", result
 		return result
@@ -261,8 +263,11 @@ class RobotCommander:
 			user_input = raw_input("Move to RELEASE pose?")
 			if user_input == 'y':
 				reach_flag = False
+				i = 0
 				while not reach_flag:
 					reach_flag = self.robot_move_predef_pose(self.release)
+					print i, "going to release"
+					i = i+1
 				cmd_release = Bool()
 				cmd_release = True
 				self.pub_grip_cmd.publish(cmd_release)
@@ -274,24 +279,30 @@ class RobotCommander:
 			## GO BACK HOME
 			user_input = raw_input("Move to INIT/HOME pose?")
 			if user_input == 'y':
-				reach_flag = False
-				while not reach_flag:
-					reach_flag = self.robot_move_predef_pose(self.release)
-				print "Robot at HOME"
-				print "Ready to new cycle"
+				# reach_flag = False
+				# while not reach_flag:
+				# 	reach_flag = self.robot_move_predef_pose(self.release)
+				# print "Robot at HOME"
+				# print "Ready to new cycle"
 				print "Please move arms such that role:HUMAN_LEADING and state:IDLE"
 				user_input = raw_input("Ready to new cycle?")
 				if user_input == 'y':
 					reach_flag = False
+					i = 0
 					while not reach_flag:
 						reach_flag = self.robot_move_predef_pose(self.robot_init)
+						print i, "going to home"
+						i = i+1
 					rospy.sleep(5)
 					self.role = "HUMAN_LEADING"
 					self.state = "IDLE"
 		
 		print "state:", self.state, "    role:", self.role
+		print self.robot_joint_angles.position, "current joints"
+		print self.openrave_joint_angles.position, "openrave joints"
 		self.hrc_status = self.state + ',' + self.role
 		self.pub_hrc_status.publish(self.hrc_status)
+		self.r.sleep()
 		
 		# if(self.steering_hand_pose.orientation.w < 0.707 and self.steering_hand_pose.orientation.x > 0.707): # Clutch deactive
 		# 	self.pub_tee_goal.publish(self.robot_pose)
