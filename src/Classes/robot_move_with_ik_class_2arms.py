@@ -116,7 +116,7 @@ class RobotCommander:
 		""" Subscribes left hand pose """
 		self.motion_hand_pose = msg
 		if not self.init_flag:
-			self.hand_init_orientation = kinematic.q_invert(self.motion_hand_pose.orientation)
+			self.hand_init_orientation = kinematic.q_invert(self.steering_hand_pose.orientation)
 			print "Hand init set:", self.hand_init_orientation
 			self.init_flag = True
 	
@@ -145,7 +145,7 @@ class RobotCommander:
 
 	def cartesian_control_2_arms(self):	
 		self.target_pose.position.x = self.motion_hand_pose.position.x + self.s * self.steering_hand_pose.position.x
-		self.target_pose.position.y = self.motion_hand_pose.position.y + self.s * self.steering_hand_pose.position.y
+		self.target_pose.position.y = self.motion_hand_pose.position.y - self.s * self.steering_hand_pose.position.y
 		self.target_pose.position.z = self.motion_hand_pose.position.z + self.s * self.steering_hand_pose.position.z
 		self.target_pose.orientation = self.motion_hand_pose.orientation
 
@@ -207,8 +207,8 @@ class RobotCommander:
 		# Palm up: active, palm dowm: idle
 		if not self.role == "ROBOT_LEADING":
 			if(self.state == "CO-LIFT"):
-				# print "steering_hand_pose.position.x and steering_hand_pose.position.z", self.steering_hand_pose.position.x, self.steering_hand_pose.position.z
-				if(self.steering_hand_pose.position.x < -0.2 and self.steering_hand_pose.position.z < -0.3):
+				print "steering_hand_pose.position.x and steering_hand_pose.position.z", self.steering_hand_pose.position.x, self.steering_hand_pose.position.z
+				if(self.steering_hand_pose.position.x < -0.2 and self.steering_hand_pose.position.z < -0.15):
 					self.state = "RELEASE"
 				else:
 					if(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
@@ -232,7 +232,7 @@ class RobotCommander:
 					# check grip here
 					# print "motion:", self.motion_hand_pose.position, "hands:", self.target_pose.position
 					print "self.hand_grip_strength.data:", self.hand_grip_strength.data
-					if(self.hand_grip_strength.data > 100):
+					if(self.hand_grip_strength.data > 75):
 						self.state = "CO-LIFT"
 						self.cartesian_control_1_arm()  # one hand free
 						# do something extra? Change axes? Maybe robot take over from here?
@@ -254,44 +254,45 @@ class RobotCommander:
 
 		else:
 			## RELEASE (or PLACE)
-			user_input = raw_input("Move to RELEASE pose?")
-			if user_input == 'y':
-				reach_dist = 10
-				while abs(reach_dist)> 0.001:
-					reach_dist = self.robot_move_predef_pose(self.release)
-					print "moving to release. dist:", reach_dist
-				cmd_release = Bool()
-				cmd_release = True
-				self.pub_grip_cmd.publish(cmd_release)
-				print "Robot at RELEASE"
-				# Gripper_release()
-			else:
-				sys.exit("unknown user input")
+			# user_input = raw_input("Move to RELEASE pose?")
+			# if user_input == 'y':
+			print "Move to RELEASE pose?"
+			reach_dist = 10
+			while abs(reach_dist)> 0.001:
+				reach_dist = self.robot_move_predef_pose(self.release)
+				print "moving to release. dist:", reach_dist
+			cmd_release = Bool()
+			cmd_release = True
+			self.pub_grip_cmd.publish(cmd_release)
+			print "Robot at RELEASE"
+			# Gripper_release()
+			# else:
+			# 	sys.exit("unknown user input")
 
 			# ## RELEASE APPROACH
 			rospy.sleep(4)  # Wait until the gripper is fully open
-			user_input = raw_input("Move to RELEASE APPROACH pose?")
+			# user_input = raw_input("Move to RELEASE APPROACH pose?")
+			# if user_input == 'y':
+			reach_dist = 10
+			while abs(reach_dist)> 0.001:
+				reach_dist = self.robot_move_predef_pose(self.release_approach)
+			print "Robot at release approach"
+			# else:
+			# 	sys.exit("unknown user input")
+
+			## GO BACK HOME
+			# user_input = raw_input("Move to INIT/HOME pose?")
+			# if user_input == 'y':
+			print "Please move arms such that role:HUMAN_LEADING and state:IDLE"
+			user_input = raw_input("Ready to new cycle?")
 			if user_input == 'y':
 				reach_dist = 10
 				while abs(reach_dist)> 0.001:
-					reach_dist = self.robot_move_predef_pose(self.release_approach)
-				print "Robot at release approach"
-			else:
-				sys.exit("unknown user input")
-
-			## GO BACK HOME
-			user_input = raw_input("Move to INIT/HOME pose?")
-			if user_input == 'y':
-				print "Please move arms such that role:HUMAN_LEADING and state:IDLE"
-				user_input = raw_input("Ready to new cycle?")
-				if user_input == 'y':
-					reach_dist = 10
-					while abs(reach_dist)> 0.001:
-						reach_dist = self.robot_move_predef_pose(self.robot_init)
-						print "moving to release. dist:", reach_dist
-					# rospy.sleep(5)
-					self.role = "HUMAN_LEADING"
-					self.state = "IDLE"
+					reach_dist = self.robot_move_predef_pose(self.robot_init)
+					print "moving to release. dist:", reach_dist
+				# rospy.sleep(5)
+				self.role = "HUMAN_LEADING"
+				self.state = "IDLE"
 		
 		print "state:", self.state, "    role:", self.role
 		# print self.robot_joint_angles.position, "current joints"

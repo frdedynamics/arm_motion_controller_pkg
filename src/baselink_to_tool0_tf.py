@@ -33,7 +33,7 @@ if __name__ == '__main__':
         # print "Rotation:", trans.transform.rotation
         tool0_actual_pose.position = trans_tool0.transform.translation
         tool0_actual_pose.orientation = trans_tool0.transform.rotation
-        pub_tool.publish(wristool0_actual_poset_right_pose)
+        pub_tool.publish(tool0_actual_pose)
 
         rate.sleep()
 
