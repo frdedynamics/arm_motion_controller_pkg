@@ -208,7 +208,7 @@ class RobotCommander:
 		if not self.role == "ROBOT_LEADING":
 			if(self.state == "CO-LIFT"):
 				print "steering_hand_pose.position.x and steering_hand_pose.position.z", self.steering_hand_pose.position.x, self.steering_hand_pose.position.z
-				if(self.steering_hand_pose.position.x < -0.2 and self.steering_hand_pose.position.z < -0.15):
+				if(self.steering_hand_pose.position.x < -0.3 and self.steering_hand_pose.position.z < -0.2):
 					self.state = "RELEASE"
 				else:
 					if(self.steering_hand_pose.orientation.w > 0.707 and self.steering_hand_pose.orientation.x < 0.707):
