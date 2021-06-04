@@ -6,6 +6,7 @@ This package is to drive ur5e with full arm(s) motion.
 
 * awindamonitor: https://github.com/Raffa87/xsense-awinda
 * my_human_pkg: https://github.com/frdedynamics/my_human_pkg
+* universal robots: https://github.com/UniversalRobots/Universal_Robots_ROS_Driver
 
 
 
