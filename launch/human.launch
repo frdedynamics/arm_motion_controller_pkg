@@ -3,7 +3,7 @@
 <launch>
 
   <!-- <param name="human_description" command="$(find xacro)/xacro '$(find arm_motion_controller_pkg)/urdf/human/2arms_2dof_elbows.xacro'"/> -->
-  <param name="human_description" command="$(find xacro)/xacro '$(find arm_motion_controller_pkg)/urdf/human/chest_included.xacro'"/>
+  <param name="human_description" command="$(find xacro)/xacro '$(find arm_motion_controller_pkg)/urdf/human/chest_included_npose.xacro'"/>
 
   <!-- Combine joint values -->
   <node name="human_state_publisher" pkg="robot_state_publisher" type="state_publisher">
