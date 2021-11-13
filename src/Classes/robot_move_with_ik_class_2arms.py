@@ -29,7 +29,7 @@ import Kinematics_with_Quaternions as kinematic
 
 
 class RobotCommander:
-	def __init__(self, rate=100, start_node=False, s=1.0, k=1.0):
+	def __init__(self, rate=125, start_node=False, s=1.0, k=1.0):
 		"""Initializes the robot commander
 			@params s: motion hand - steering hand scale
 			@params k: target hand pose - robot pose scale"""
@@ -45,7 +45,14 @@ class RobotCommander:
 
 		self.robot_init = Pose(Point(0.0541860145827, -0.584139173043,  0.189550620537), Quaternion(0.542714478609, -0.464001894512, -0.516758121814, 0.472360328708))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 		self.release_approach = Pose(Point(-0.465337306348, -0.226618254474, 0.0329134063267), Quaternion(0.561379785159, -0.440200301152, -0.496712122833, 0.494321250515))
-		self.release = Pose(Point(-0.460710112314, -0.353837082507, 0.0171878089798), Quaternion(0.561713498746, -0.4400991731221, -0.496436115888, 0.494309463783))
+		# self.release_approach = Pose(Point(-0.1057958997482595, -0.069827809543075, 0.24765271954147983), Quaternion(0.09647603680044321, 0.9697800264381959, -0.1752512918440704, 0.13966409471226343))
+
+		# self.release = Pose(Point(-0.460710112314, -0.353837082507, 0.0171878089798), Quaternion(0.561713498746, -0.4400991731221, -0.496436115888, 0.494309463783))
+		self.release = Pose(Point(0.309838250283761, -0.5799379421610682, 0.3150752448988481), Quaternion(0.5428135487696888, -0.4632574920221498, -0.5168295464866098, 0.47289868601620133))
+
+
+
+
 
 		print "============ Arm current pose: ", self.robot_init
 		# print "click Enter to continue"
@@ -145,7 +152,7 @@ class RobotCommander:
 
 	def cartesian_control_2_arms(self):	
 		self.target_pose.position.x = self.motion_hand_pose.position.x + self.s * self.steering_hand_pose.position.x
-		self.target_pose.position.y = self.motion_hand_pose.position.y - self.s * self.steering_hand_pose.position.y
+		self.target_pose.position.y = self.motion_hand_pose.position.y + self.s * self.steering_hand_pose.position.y
 		self.target_pose.position.z = self.motion_hand_pose.position.z + self.s * self.steering_hand_pose.position.z
 		self.target_pose.orientation = self.motion_hand_pose.orientation
 
@@ -158,6 +165,7 @@ class RobotCommander:
 		self.robot_pose.orientation = self.robot_init.orientation
 
 		self.motion_hand_colift_init = self.motion_hand_pose
+
 
 
 	def cartesian_control_1_arm(self):	
@@ -195,10 +203,11 @@ class RobotCommander:
 		result = False
 		if not result:
 			self.pub_tee_goal.publish(goal)
-			rospy.sleep(0.5)
+			rospy.sleep(1.0)
+			result = RobotCommander.jointcomp(self.robot_joint_angles.position, self.openrave_joint_angles.position)
 			print self.robot_joint_angles.position, "current joints"
 			print self.openrave_joint_angles.position, "openrave joints"
-			result = RobotCommander.jointcomp(self.robot_joint_angles.position, self.openrave_joint_angles.position)
+			
 			print "result", result
 		return result
 
