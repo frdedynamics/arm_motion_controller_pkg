@@ -43,12 +43,52 @@ class RobotCommander:
 		# self.robot_init = Pose(Point(0.3921999999969438, 0.08119999999999986,  0.6871000000019204), Quaternion(0.0, 0.0, 0.0, 1.0)) # home = [0.0, -pi/2, pi/2, pi, -pi/2, 0.0]
 		# self.robot_init = Pose(Point(-0.08119999999999973, 0.3921999999969438,  0.6871000000019204), Quaternion(0.0, 0.0, 0.707, 0.707))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
 
-		self.robot_init = Pose(Point(0.0541860145827, -0.584139173043,  0.189550620537), Quaternion(0.542714478609, -0.464001894512, -0.516758121814, 0.472360328708))  # home = [pi/2, -pi/2, pi/2, pi, -pi/2, 0.0]
-		self.release_approach = Pose(Point(-0.465337306348, -0.226618254474, 0.0329134063267), Quaternion(0.561379785159, -0.440200301152, -0.496712122833, 0.494321250515))
-		# self.release_approach = Pose(Point(-0.1057958997482595, -0.069827809543075, 0.24765271954147983), Quaternion(0.09647603680044321, 0.9697800264381959, -0.1752512918440704, 0.13966409471226343))
 
-		# self.release = Pose(Point(-0.460710112314, -0.353837082507, 0.0171878089798), Quaternion(0.561713498746, -0.4400991731221, -0.496436115888, 0.494309463783))
-		self.release = Pose(Point(0.309838250283761, -0.5799379421610682, 0.3150752448988481), Quaternion(0.5428135487696888, -0.4632574920221498, -0.5168295464866098, 0.47289868601620133))
+		self.robot_init = Pose(Point(
+		0.054151243000484704
+		, -0.5840904941130514
+		, 0.18957451048347326
+		), Quaternion(
+		0.5427332897068969
+		, -0.46399734463550024
+		, -0.5167147663025664
+		, 0.47239061241732816))
+		self.release_prev = Pose(Point(
+		-0.5041184388856704
+		, -0.3491114137614435
+		, 0.47645379357725103
+		), Quaternion(
+		-0.4229035625161607
+		, 0.5412214903139102
+		, 0.582528000925925
+		, -0.4346182271497309))
+		self.release_approach = Pose(Point(
+		-0.4873802209177285
+		, -0.12434494189598244
+		, 0.26815307813561902
+		), Quaternion(
+		-0.4220498394104166
+		, 0.5418238886018628
+		, 0.5825717575499393
+		, -0.43463887780452004))
+		self.release = Pose(Point(
+		-0.5041874387918807
+		, -0.34914118693851026
+		, 0.26808233893849767
+		), Quaternion(
+		-0.4225775186835668
+		, 0.5413191268876975
+		, 0.5825892197863801
+		, -0.43473169260761024))
+		self.home_approach = Pose(Point(
+		0.0403108646168594
+  		, -0.4122710139945929
+  		, 0.41858616014055133
+		), Quaternion(
+  		-0.47824889031934564
+  		, 0.5202804719685526
+  		, 0.5696528765657819
+		, -0.41962105478255585))
 
 
 
@@ -169,6 +209,7 @@ class RobotCommander:
 
 
 	def cartesian_control_1_arm(self):	
+		
 		self.motion_hand_colift_pos_ch.x = self.motion_hand_pose.position.x - self.motion_hand_colift_init.position.x
 		self.motion_hand_colift_pos_ch.y = self.motion_hand_pose.position.y - self.motion_hand_colift_init.position.y
 		self.motion_hand_colift_pos_ch.z = self.motion_hand_pose.position.z - self.motion_hand_colift_init.position.z
@@ -268,15 +309,28 @@ class RobotCommander:
 			print "Move to RELEASE pose?"
 			reach_dist = 10
 			while abs(reach_dist)> 0.001:
+				reach_dist = self.robot_move_predef_pose(self.home_approach)
+				print "moving to release. dist:", reach_dist
+			print "Robot at HOME_APPROACH"
+			
+			rospy.sleep(1.0)
+
+			reach_dist = 10
+			while abs(reach_dist)> 0.001:
+				reach_dist = self.robot_move_predef_pose(self.release_prev)
+				print "moving to release. dist:", reach_dist
+			print "Robot at RELEASE_PREV"
+
+			rospy.sleep(1.0)
+
+			reach_dist = 10
+			while abs(reach_dist)> 0.001:
 				reach_dist = self.robot_move_predef_pose(self.release)
 				print "moving to release. dist:", reach_dist
 			cmd_release = Bool()
 			cmd_release = True
 			self.pub_grip_cmd.publish(cmd_release)
 			print "Robot at RELEASE"
-			# Gripper_release()
-			# else:
-			# 	sys.exit("unknown user input")
 
 			# ## RELEASE APPROACH
 			rospy.sleep(4)  # Wait until the gripper is fully open
@@ -295,6 +349,13 @@ class RobotCommander:
 			print "Please move arms such that role:HUMAN_LEADING and state:IDLE"
 			user_input = raw_input("Ready to new cycle?")
 			if user_input == 'y':
+				reach_dist = 10
+				while abs(reach_dist)> 0.001:
+					reach_dist = self.robot_move_predef_pose(self.home_approach)
+					print "moving to release. dist:", reach_dist
+				print "Robot at HOME_APPROACH"
+
+				rospy.sleep(1.0)
 				reach_dist = 10
 				while abs(reach_dist)> 0.001:
 					reach_dist = self.robot_move_predef_pose(self.robot_init)
