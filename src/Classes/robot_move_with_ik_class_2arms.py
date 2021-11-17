@@ -107,6 +107,7 @@ class RobotCommander:
 		self.openrave_joint_angles.position = self.home
 		self.robot_pose = Pose()
 		self.robot_joint_angles = JointState()
+		self.merged_hands = Pose()
 
 		self.tee_calc = Pose()
 
@@ -150,6 +151,7 @@ class RobotCommander:
 		self.pub_tee_goal = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
 		self.pub_hrc_status = rospy.Publisher('/hrc_status', String, queue_size=1)
 		self.pub_grip_cmd = rospy.Publisher('/cmd_grip', Bool, queue_size=1)
+		self.pub_merged_hands = rospy.Publisher('/merged_hands', Pose, queue_size=1)
 
 
 	def cb_hand_grip_strength(self, msg):
@@ -204,6 +206,11 @@ class RobotCommander:
 		# self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
 		self.robot_pose.orientation = self.robot_init.orientation
 
+		self.merged_hands.position.x = self.k * corrected_target_pose[0]
+		self.merged_hands.position.y = - self.k * corrected_target_pose[1]
+		self.merged_hands.position.z = self.k * corrected_target_pose[2]
+		self.pub_merged_hands.publish(self.merged_hands)
+
 		self.motion_hand_colift_init = self.motion_hand_pose
 
 
@@ -228,6 +235,10 @@ class RobotCommander:
 		self.robot_pose.position.z = self.robot_colift_init.position.z + self.k * corrected_motion_hand_pose[2]
 		# self.robot_pose.orientation = kinematic.q_multiply(self.robot_init.orientation, kinematic.q_multiply(self.hand_init_orientation, self.motion_hand_pose.orientation))
 		self.robot_pose.orientation = self.robot_colift_init.orientation
+		self.merged_hands.position.x = self.k * corrected_motion_hand_pose[0]
+		self.merged_hands.position.y = - self.k * corrected_motion_hand_pose[1]
+		self.merged_hands.position.z = self.k * corrected_motion_hand_pose[2]
+		self.pub_merged_hands.publish(self.merged_hands)
 
 
 	@staticmethod
